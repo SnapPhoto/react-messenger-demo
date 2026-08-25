@@ -1,0 +1,33 @@
+.settings_panel_user_page {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: auto;
+	height: auto;
+	border: 1px solid rgba(200,200,200,0.2);
+	padding: 10px;
+	background: white;
+	filter: drop-shadow(1px 1px 10px rgba(0,0,0,0.1));
+}
+.settings_panel_user_page_button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5px;	
+	margin-bottom: 5px;
+}
+.settings_panel_user_page_button:hover {
+	background: lightgray;
+}
+.close_button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5px;
+	background: rgba(245, 245, 245, 1.0);
+	margin-bottom: 5px;
+}
+.close_button:hover {
+	background: lightgray;
+}

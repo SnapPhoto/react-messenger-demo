@@ -1,0 +1,188 @@
+.favourites {
+
+}
+.forma {
+	display: block;
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+}
+.no_favourites {
+	display: flex;
+	width: 100%;
+	height: calc(100px + 11vmin);
+	align-items: center;
+	justify-content: center;
+}
+.img_row {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(10px, auto));
+	position: relative;
+	justify-content: center;
+	width: 90%;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	gap: 5px;
+}
+.row {
+	display: flex;
+	white-space: nowrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	height: 60px;
+/* 	border: 1px solid lightgray; */
+	margin: 10px 0px;
+	box-sizing: border-box;
+}
+.buttons_row {
+	white-space: nowrap;
+	display: flex;
+	white-space: none;
+	justify-content: space-around;
+}
+.buttons_row_item {
+	white-space: nowrap;
+	background: lightgray;
+	padding: 10px;
+	width: 100%;
+	transition: all 0.3s ease-in;
+}
+.buttons_row_item:hover {
+	background: darkgray;
+	cursor: pointer;
+}
+.buttons_row_item_active {
+	white-space: nowrap;
+	background: darkgray;
+	padding: 10px;
+	width: 100%;
+	transition: all 0.3s ease-in;
+}
+.buttons_row_item_active:hover {
+	background: gray;
+	color: white;
+	cursor: pointer;
+}
+.favourite_item {
+	position: relative;
+	height: auto;
+	width: 100%;
+	padding: 0px 10px;
+	margin: 10px 0;
+	background: white;
+	border: 1px solid transparent;
+	box-sizing: border-box;
+}
+.img {
+	display: flex;
+	position: relative;
+	height: 60px;
+	width: 60px;
+}
+.img img {
+	position: absolute;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+/* 	border: 1px solid lightgray; */
+	box-sizing: border-box;
+	border-radius: 50%;
+}
+.group_content_img {
+	display: flex;
+	position: relative;
+	height: 100%;
+	width: 100%;
+	aspect-ratio: 1/1;
+}
+.group_content_img img {
+	position: absolute;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+/* 	border: 1px solid lightgray; */
+	box-sizing: border-box;
+	border-radius: 50%;
+}
+/*  */
+.image { 
+	/* для type === images */
+	display: flex;
+	position: relative;
+	justify-content: left;
+	height: auto;
+	width: auto;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+.image img {
+	display: block;
+	/* для type === images */
+	min-height: 100px;
+	height: auto;
+	max-height: 200px;
+	width: auto;
+	max-width: 400px;
+	box-sizing: border-box;
+}
+.img_into_message {
+	display: block;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	aspect-ratio: 1 / 1;
+}
+.clear {
+	display: flex;
+	height: 100%;
+	padding: 10px;
+	background: rgba(100, 0, 0, 0.05);
+	white-space: nowrap;
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease-in;
+	cursor: pointer;
+	font-size: calc(1px + 2vmin);
+}
+.clear:hover {
+	background: rgba(100, 0, 0, 1);
+	color: white;
+}
+.block_data {
+	display: inline-flex;
+	white-space: nowrap;
+	align-items: center;
+	justify-content: left;
+	gap: 10px;
+
+}
+.mail_text {
+	display: flex;
+/* 	justify-content: center; */
+/* 	align-items: center; */
+	width: auto;
+	height: auto;
+/* 	margin: 0px 10px; */
+	padding-right: 5px;
+}
+.images {
+/* 	border: 1px solid lightgray; */
+	display: grid;
+/* 	grid-template-columns: repeat(3, minmax(10px, auto)); */
+	position: relative;
+	justify-content: center;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	gap: 5px;
+}
+
+.box_name {
+	background: lightgray;
+}

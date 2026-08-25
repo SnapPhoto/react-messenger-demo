@@ -1,0 +1,7 @@
+.login_default {
+	display: flex;
+	justify-content: center;
+}
+.login_default form * {
+	width: 100%;
+}

@@ -1,0 +1,10 @@
+.default {
+	box-sizing: border-box;
+	width: 60%;
+	font-size: calc(6px + 2vmin);
+	color: gray;
+	outline: none;
+}
+.default:focus {
+	color: black;
+}

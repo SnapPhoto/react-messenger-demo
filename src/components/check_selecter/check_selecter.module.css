@@ -1,0 +1,28 @@
+@keyframes visiable_on {
+	0% {
+		opacity: 0;
+	}
+	90% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0.3;
+	}
+}
+.check_selecter {
+	display: flex;
+	border: 1px solid black;
+	border-radius: 25px;
+}
+.check_selecter * {
+
+}
+.switch_block {
+	animation: visiable_on 0.2s forwards;
+}
+.first_value {
+	margin: 0 10px;
+}
+.second_value {
+	margin:  0 10px;
+}

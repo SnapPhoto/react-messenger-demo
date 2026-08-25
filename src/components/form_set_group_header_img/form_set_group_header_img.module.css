@@ -1,0 +1,31 @@
+.form {
+	display: none;
+}
+.preview {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin-bottom: -5px;
+}
+.preview img {
+	width: 100%;
+	height: 135px;
+	object-fit: cover;
+}
+.buttons {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(5px);
+}
+.empty_img {
+	display: flex;
+	width: 100%;
+	height: 300px;
+	background: rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(5px);
+	color: white;
+	align-items: center;
+	justify-content: center;
+}

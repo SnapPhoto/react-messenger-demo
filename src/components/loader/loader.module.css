@@ -1,0 +1,25 @@
+@keyframes loader {
+	0% {
+		rotate: 0deg;
+	}
+
+	50%{
+		rotate: 180deg;
+	}
+
+	100% {
+		rotate: 360deg;
+	}
+}
+
+.loader {
+	display: block;
+	position: relative;
+	width: 32px;
+	height: 32px;
+	color: gray;
+	border: 1px solid black;
+	border-radius: 50%;
+	background: transparent;
+	animation: 3s loader infinite;
+}

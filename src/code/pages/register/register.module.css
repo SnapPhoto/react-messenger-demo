@@ -1,0 +1,7 @@
+.register_default {
+	display: flex;
+	justify-content: center;
+}
+.register_default form * {
+	width: 100%;
+}

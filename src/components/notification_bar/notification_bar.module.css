@@ -1,0 +1,25 @@
+@keyframes flash {
+	0% {
+		opacity: 0;
+		scale: 0;
+	}
+	100% {
+		opacity: 1;
+		scale: 1;
+	}
+}	
+
+.notification_bar_empty {
+	display: none;
+}
+.notification_bar {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	width: calc(8px + 2vmin);
+	height: calc(8px + 2vmin);
+	box-sizing: border-box;
+	border: 1px solid lightgray;
+	border-radius: 50%;
+	animation: flash 0.5s ease;
+}

@@ -1,0 +1,38 @@
+.form {
+	display: block;
+	text-align: left;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	z-index: 1;
+	background: white;
+	box-shadow: 0px 0px 100px rgba(0, 0, 0, 0.2);
+}
+.item {
+	display: inline-flex;
+	margin: 0px 10px 0px 0px;
+	opacity: 0.8;
+	padding: 10px;
+}
+.item:hover {
+	opacity: 1;
+	background: rgba(0, 0, 0, 0.05);
+}
+.item_name {
+
+}
+.close {
+	display: flex;
+	margin: 0 0 20px 0;
+}
+.close_it {
+	color: rgba(150, 0, 0, 1.0);
+	cursor: pointer;
+	opacity: 0.8;
+	padding: 10px;
+	border: 1px solid whitesmoke;
+}
+.close_it:hover {
+	opacity: 1;
+	background: rgba(200, 0, 0, 0.1);
+}

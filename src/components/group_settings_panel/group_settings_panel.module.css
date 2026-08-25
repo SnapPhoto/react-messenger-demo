@@ -1,0 +1,44 @@
+/* когда current-group-big-img пуст */
+.panel { 
+	position: relative;
+	min-width: 200px;
+	width: auto;
+	height: 100%;
+	background: white;
+	border-left: 10px solid whitesmoke;
+	padding: 10px;
+	filter: drop-shadow(1px 1px 10px rgba(0,0,0,0.1));
+	text-align-last: left;
+}
+/* когда current-group-big-img имеет фотку */
+.panel_with_header {
+	position: relative;
+	min-width: 200px;
+	width: auto;
+	height: 100%;
+	background: rgba(200, 200, 200, 0.8);
+	padding: 10px;
+	backdrop-filter: blur(5px);
+	text-align-last: left;
+}
+.button {
+	padding: 2px 5px;
+	margin: 5px 0;
+}
+.button:hover {
+	cursor: pointer;
+	opacity: 0.5;
+}
+.close {
+	display: flex;
+	border: 1px solid gray;
+	justify-content: center;
+}
+.delete {
+	margin: 20px 0 0 0;
+	padding: 2px 5px;
+
+}
+.delete:hover {
+	color:	rgba(150,0,0,1);
+}

@@ -1,0 +1,28 @@
+@keyframes load {
+	0% {
+		scale: 0;
+		opacity: 0;
+	}
+	100% {
+		scale: 1;
+		opacity: 1;
+	}
+}
+.default {
+	display: flex;
+	background: whitesmoke;
+	border-radius: 50%;
+	height: 60px;
+	width: 60px;
+	overflow: hidden;
+	justify-content: center;
+	align-items: center;
+	animation: load 0.2s;
+	box-sizing: border-box; 
+}
+.default img {
+	height: auto;
+	width: 100%;
+	min-width: 60px;
+	min-height: 60px;
+}

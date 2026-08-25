@@ -1,0 +1,56 @@
+.user_page_more_friends_panel {
+	display: flex;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+}
+.fon {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: rgba(0, 0, 0, 0.5);
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+}
+.panel {
+	position: relative;
+}
+.panel_friends {
+	position: relative;
+	min-width: 300px;
+	width: calc(100px + 50vmin);
+	height: auto;
+	min-height: 130px;
+	max-height: 400px;
+	background: white;
+	z-index: 1;
+	padding: 10px;
+	overflow-y: scroll;
+}
+.close_button {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform: translate(100%, -100%);
+	background: rgba(0,0,0,0.3);
+	border-radius: 25px;
+	filter: drop-shadow(0px 0px 10px white);
+	padding: 10px;
+	z-index: 2;
+	cursor: pointer;
+}
+.close_button:hover {
+	filter: drop-shadow(0px 0px 5px white);
+	color: white;
+}
+.friends {
+	border-bottom: 1px solid lightgray;
+	padding-bottom: 10px;
+}

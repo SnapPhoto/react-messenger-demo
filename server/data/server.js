@@ -8095,6 +8095,7 @@ fastify.post('/clear_posts_for_main_page', async (request, reply) => {
 });
 
 fastify.post('/remove_news', async (request, reply) => {
+	return; // временно
 	const raw_token = request.headers.authorization;
 	if( !raw_token ){
 		return reply.status(400).send({error: 'Заголовок пустой'});
@@ -8119,9 +8120,6 @@ fastify.post('/remove_news', async (request, reply) => {
 		console.log('Пользователь не найден!');
 		return reply.status(401).send({error: 'Пользователь не найден!'});
 	};
-
-	const content_id = НУЖНО КАК_ТО ПОЛУЧИТЬ ID КОНТЕНТА !!!!!!!!!!
-
 	const group_id = request?.body?.group_id;
 	if( !group_id ){
 		console.log('ID группы не передано');

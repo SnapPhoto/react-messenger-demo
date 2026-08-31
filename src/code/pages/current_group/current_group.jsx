@@ -1562,6 +1562,7 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 											create_new_record={create_new_record}
 											closed={(group_data?.group_settings?.password !== null && group_data?.group_settings?.password !== '' && group_data?.group_settings?.password.trim('') !== '') ? true : false}
 											group_members={group_members}
+											ws_message_type={ws_message_type}
 											ws_ref={ws_ref}
 										></Form_Create_New_Record>
 									</div>
@@ -1616,6 +1617,7 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 																	this_group_id={this_group_id}
 																	ws_message_type={ws_message_type}
 																	ws_ref={ws_ref}
+																	unique_token={post?.unique_token || ''}
 																></Content_Block>
 															</div>
 														</div>

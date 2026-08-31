@@ -821,6 +821,44 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		}
 	},[all_notifications])
 
+	async function check_online(){
+		let loading = false;
+		try{
+			loading = true;
+			//запрос на сервер...
+			if( loading ){
+				const response = await axios.get('http://localhost:8080/check_online', {
+					params: {
+						user_id: user_id,
+					},
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				});
+				if( response?.body?.my_online !== undefined ){
+					console.log('Я В СЕТИ ?', response?.data?.my_online)
+				};
+				if( response?.body?.other_online !== undefined ){
+					console.log('В СЕТИ ?', response?.data?.other_online)
+				};
+			}
+			else {
+				loading = false;
+				return;
+			}
+		}
+		catch(err){
+			console.error('Ошибка: ', err);
+		}
+		return () => {
+			loading = false;
+		};
+	};
+
+	useEffect(()=>{
+		check_online().catch(console.error);
+	},[user_id])
+
 	return (
 		<div className='user-page'>
 			<div className='panel-header'>
@@ -932,8 +970,8 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 									<div className='block-item'>
 										{!this_my_page
 											&&
-												<div className='user-last-activity'>
-													{t ? `${t.d > 0 ? `${t.d}д` : ''} ${t.h}ч ${t.m}м назад` : 'был недавно'}
+												<div className='online'>
+													{user?.online ? 'В сети' : 'Не в сети'}
 												</div>
 										}
 										<div className='user-name row'>
@@ -1104,6 +1142,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 																				new_images_array={new_images_array}
 																				visible_images={visible_images}
 																				hidden_images={hidden_images}
+																				unique_token={post?.unique_token}
 																			></Content_Block>
 																		</div>
 																	</div>
@@ -1294,6 +1333,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 																				new_images_array={new_images_array}
 																				visible_images={visible_images}
 																				hidden_images={hidden_images}
+																				unique_token={post?.unique_token}
 																			></Content_Block>
 																		</div>
 																	</div>
@@ -1463,6 +1503,8 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 									user_page_id={user_id}
 									get_posts={get_posts}
 									create_new_record={''}
+									ws_message_type={ws_message_type}
+									ws_ref={ws_ref}
 								></Form_Create_New_Record_For_User_Page>
 							}
 						</div>

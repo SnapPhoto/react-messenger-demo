@@ -42,6 +42,10 @@ const Post_Group_Schema = new mongoose.Schema({
 		type: String,
 		default: false,
 	},
+	unique_token: {
+		type: String,
+		default: ''
+	}
 });
 
 const post_group_model = new mongoose.model('post_group', Post_Group_Schema);

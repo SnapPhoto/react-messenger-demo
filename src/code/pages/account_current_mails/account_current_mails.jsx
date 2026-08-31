@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../../App.css';
 import App_Router from '../../../app_router/app_router';
@@ -107,6 +107,107 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
  
 	// для возврата к элементу после изменения
 	const changed_element_ref = useRef(null);
+
+	// CallBack функции
+	const func_scroll_to_it_after_changed_callback_func = useCallback((content_id)=>{
+		if( !content_id ){
+			return console.warn('Не удаётся установить позицию на Content с id = ', content_id)
+		};
+		if( mails.length === 0 ){
+			return console.warn('Сообщений нет. Не на чего устанавливать фокус позиции');
+		};
+		const mails_blocks = document.querySelectorAll('.mail-body');
+		if( !mails_blocks ){
+			return console.warn('Блоков с сообщениями нет');
+		};
+		const content_block = document.querySelector(`[content_id="${content_id}"]`);
+		if( !content_block ){
+			return console.warn('Нет контента для центровки');
+		};
+		const parent_element_one = content_block.parentElement;
+		if( !parent_element_one ){
+			return console.warn('[1] Хм... У этого жлемента нет родителя');
+		};
+		const parent_element_two = parent_element_one.parentElement;
+		if( !parent_element_two ){
+			return console.warn('[2] Хм... У этого жлемента нет родителя');
+		};
+		const parent_element_three = parent_element_two.parentElement;
+		if( !parent_element_three ){
+			return console.warn('[3] Хм... У этого жлемента нет родителя');
+		};
+		changed_element_ref.current = parent_element_three;
+		if( changed_element_ref.current !== null ){
+			function set_scroll_pos(){
+				changed_element_ref.current.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center'
+				});
+			}
+			const time_out = setTimeout(set_scroll_pos, 100);
+		};
+	},[loading_page])
+
+	const set_select_img_for_view_callback_func = useCallback((img, img_index, images, all_images)=>{
+		const token = localStorage.getItem('token');
+		if( !token ){
+			return;
+		};
+		if( img ){
+			console.log('******* img = ', img);
+		};
+		if( img_index !== null ){
+			console.log('******* img_index = ', img_index);
+		};
+		if( images ){
+			console.log('******* images = ', images);
+		};
+		const unique_normal_images_from_current_mails = new Set();
+		const array_normal_images_from_current_mails = [];
+		if( img && img_index !== null && images ){
+			images_from_max.forEach((image, img_index)=>{
+				const raw_image = image;
+				const raw_name = raw_image.split('/')[3].split('.');
+				const name = raw_name[0] + '.' + raw_name[2];
+				if( !unique_normal_images_from_current_mails.has(name) ){
+					unique_normal_images_from_current_mails.add(name);
+					array_normal_images_from_current_mails.push({
+						path: image,
+						name: name,
+					});
+				}
+			});
+		};
+		if( array_normal_images_from_current_mails.length > 0 ){
+			// console.log('[1586] array_normal_images_from_current_mails = ', array_normal_images_from_current_mails)
+			const founded_images = [];
+			images.forEach((image, index)=>{
+
+				// console.log('[1589] image = ', image)
+
+				const founded_image = array_normal_images_from_current_mails.find(arr_image => arr_image.name === image?.data?.loaded_file?.name);
+				if( founded_image ){
+
+					console.log('[1591] founded_image = true')
+
+					founded_images.push(founded_image);
+				}
+				else{
+					console.log('[1596] else => image...name = ', image[0]?.data?.loaded_file?.name);
+					console.log('=> array_normal_images_from_current_mails...name => ', array_normal_images_from_current_mails[0]?.name)
+				}
+			});
+			if( founded_images.length > 0 ){
+				set_normal_images_from_current_mails(founded_images);
+				set_data_for_view({
+					current_img: img,
+					current_img_index: img_index,
+					images: founded_images,
+					array_normal_images_from_current_mails: array_normal_images_from_current_mails
+				})
+			};
+		}
+	},[loading_page])
 
 	useEffect(()=>{
 		if( images_from_max.length > 0 ){
@@ -623,12 +724,12 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					else if( !name_of_current_mail && !curr_user && !my_data ){
 						console.log('Предзагрузка файлов для сообщения...');
 						console.log('207')
-						const uploaded_files = selected_files.map((file, index) => {
+						const uploaded_files = selected_files.map( async (file, index) => {
 							const formData = new FormData();
 							formData.append('type', 'file');
 							formData.append('file_index', index);
 							formData.append('file', file);
-							const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+							const response = await axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
 								headers: {
 									Authorization: `Bearer ${token}`
 								}
@@ -1351,34 +1452,34 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 	},[mails, open_img_in_message, roller_path])
 
 
-	useEffect(()=>{
-		def_mails.forEach((mail)=>{
-			if( mail.status === 'uncheck' && mail.to === my_data.id){
-				async function check_seen_mails(){
-					const token = localStorage.getItem('token');
-					if( token ){
-						try{
-							console.log('отправка на изменение: mail = ', mail)
-							const response = await axios.post('http://localhost:8080/mails/change_status', {
-								mail: mail,
-							}, {
-								headers: {
-									Authorization: `Bearer ${token}`
-								}
-							});
-							if( response.data.message !== '' ){
-								await get_mails();
-							}
-						}
-						catch(err){
-							console.error('Ошибка отметки "прочитано" ', err);
-						}
-					}
-				}	
-				check_seen_mails();
-			}
-		})
-	},[mails])
+	// useEffect(()=>{
+	// 	def_mails.forEach((mail)=>{
+	// 		if( mail.status === 'uncheck' && mail.to === my_data.id){
+	// 			async function check_seen_mails(){
+	// 				const token = localStorage.getItem('token');
+	// 				if( token ){
+	// 					try{
+	// 						console.log('отправка на изменение: mail = ', mail)
+	// 						const response = await axios.post('http://localhost:8080/mails/change_status', {
+	// 							mail: mail,
+	// 						}, {
+	// 							headers: {
+	// 								Authorization: `Bearer ${token}`
+	// 							}
+	// 						});
+	// 						if( response.data.message !== '' ){
+	// 							await get_mails();
+	// 						}
+	// 					}
+	// 					catch(err){
+	// 						console.error('Ошибка отметки "прочитано" ', err);
+	// 					}
+	// 				}
+	// 			}	
+	// 			check_seen_mails();
+	// 		}
+	// 	})
+	// },[mails])
 
 
 
@@ -1522,63 +1623,6 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 		}
 	};
 
-	// НОВИНКА! ИЗУЧИТЬ! 
-	// ленивая загрузка
-	// useEffect(()=>{
-	// 	if( can_load_img_after_scroll ){
-	// 		const ImageObserver = new IntersectionObserver((entries, observer) => {
-	// 			entries.forEach((item)=>{
-	// 				if( item.isIntersecting ){
-	// 					const img = item.target;
-	// 					img.src = img.getAttribute('lazy_src');
-	// 					img.setAttribute('lazy', 'false');
-	// 					// img.removeAttribute('lazy_src');
-	// 					observer.unobserve(img);
-	// 				}
-	// 			})
-	// 		},{
-	// 			rootMargin: '50px 0px',
-	// 			threshold: 0.01
-	// 		});
-	// 		if( mails.length > 0 ){
-	// 			const lazy_images = document.querySelectorAll('.img_into_message');
-	// 			if( lazy_images.length > 0 ){
-	// 				console.log('lazy_images = ', lazy_images);
-	// 				lazy_images.forEach(item => {
-	// 					if( item.getAttribute('lazy') === 'true' ){
-	// 						ImageObserver.observe(item)
-	// 					}
-	// 				})
-	// 			}
-	// 		}
-	// 	}
-	// },[mails, data_img, can_load_img_after_scroll])
-
-	useEffect(()=>{
-		if( can_load_img_after_scroll ){
-			const Intersection_Observer = new IntersectionObserver((items, returns)=>{
-				items.forEach(item=>{
-					if( item.isIntersecting ){
-						const i_item = item.target;
-						i_item.src = i_item.getAttribute('lazy_src');
-						i_item.setAttribute('lazy', 'false');
-						returns.unobserve(i_item);
-					}
-				})
-			});
-			if( mails.length > 0 ){
-				const lazy_items = document.querySelectorAll('.img_into_message');
-				if( lazy_items.length > 0 ){
-					lazy_items.forEach(l_item => {
-						if( l_item.getAttribute('lazy') === 'true' ){
-							Intersection_Observer.observe(l_item);
-						}
-					})
-				}
-			}
-		}
-	},[mails, data_img, can_load_img_after_scroll]);
-
 	// useEffect(()=>{
 	// 	async function remove_all_messages_for_current_mails(){
 	// 		const response = await axios.post('http://localhost:8080/remove_all_messages_for_current_mails', {}, {})
@@ -1691,66 +1735,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 		}
 	};
 
-	function select_img_for_view(img, img_index, images, all_images){
-		const token = localStorage.getItem('token');
-		if( !token ){
-			return;
-		};
-		if( img ){
-			console.log('******* img = ', img);
-		};
-		if( img_index !== null ){
-			console.log('******* img_index = ', img_index);
-		};
-		if( images ){
-			console.log('******* images = ', images);
-		};
-		const unique_normal_images_from_current_mails = new Set();
-		const array_normal_images_from_current_mails = [];
-		if( img && img_index !== null && images ){
-			images_from_max.forEach((image, img_index)=>{
-				const raw_image = image;
-				const raw_name = raw_image.split('/')[3].split('.');
-				const name = raw_name[0] + '.' + raw_name[2];
-				if( !unique_normal_images_from_current_mails.has(name) ){
-					unique_normal_images_from_current_mails.add(name);
-					array_normal_images_from_current_mails.push({
-						path: image,
-						name: name,
-					});
-				}
-			});
-		};
-		if( array_normal_images_from_current_mails.length > 0 ){
-			// console.log('[1586] array_normal_images_from_current_mails = ', array_normal_images_from_current_mails)
-			const founded_images = [];
-			images.forEach((image, index)=>{
-
-				// console.log('[1589] image = ', image)
-
-				const founded_image = array_normal_images_from_current_mails.find(arr_image => arr_image.name === image?.data?.loaded_file?.name);
-				if( founded_image ){
-
-					console.log('[1591] founded_image = true')
-
-					founded_images.push(founded_image);
-				}
-				else{
-					console.log('[1596] else => image...name = ', image[0]?.data?.loaded_file?.name);
-					console.log('=> array_normal_images_from_current_mails...name => ', array_normal_images_from_current_mails[0]?.name)
-				}
-			});
-			if( founded_images.length > 0 ){
-				set_normal_images_from_current_mails(founded_images);
-				set_data_for_view({
-					current_img: img,
-					current_img_index: img_index,
-					images: founded_images,
-					array_normal_images_from_current_mails: array_normal_images_from_current_mails
-				})
-			};
-		}
-	};
+	
 
 	function func_scroll_to_it_after_changed(content_id){
 		if( !content_id ){
@@ -1805,7 +1790,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			if( ws_message_type?.for?.to === my_id || ws_message_type?.for?.from === my_id ){
 				get_mails();
 			};
-			if( ws_message_type?.type === 'change_content_for_mail' ){
+			if( (ws_message_type?.type === 'change_content_for_mail') || (ws_message_type?.type === 'change_status_for_mail')){
 				const exist_content = mails.find(mail => mail?._id === ws_message_type?.content_id);
 				if( exist_content ){
 					get_mails();
@@ -2078,9 +2063,6 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 																	</div>
 																}
 															</div>
-															<div className='mail-status'>
-																{mail.status === 'uncheck' ? <div className='mail-status-have'></div> : <div className='mail-status-check'></div>}
-															</div>
 														</div>
 														<div className='current_mails_button_add_to_favourite_false' onClick={()=>{
 															console.log('MAIL = ', JSON.parse(mail?.img));
@@ -2100,8 +2082,8 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 																		const img_name = raw_img_name[0] + '.' + raw_img_name[2];
 																		return img_name === other_data.other_avatar;
 																	}),
-																get_images_for_mail(mail?.img ? mail : false), 						//изображения
-																mail._id, 																//id сообщения
+																get_images_for_mail(mail?.img ? mail : false), 						// изображения
+																mail._id, 															// id сообщения
 																mail?.message || '',
 																mail?.voice || null,
 															)
@@ -2141,13 +2123,15 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 																content_id_for_current_mails={mail?._id}
 																for_current_mails={true}
 																images_from_max={images_from_max}
-																select_img_for_view={select_img_for_view}
+																select_img_for_view={set_select_img_for_view_callback_func}
 																normal_images_from_current_mails={normal_images_from_current_mails}
 																data_images_from_max={data_images_from_max}
 																this_my_message={mail.name_sender === my_data.name ? true : false}
-																func_scroll_to_it_after_changed={func_scroll_to_it_after_changed}
+																func_scroll_to_it_after_changed={func_scroll_to_it_after_changed_callback_func}
 																ws_message_type={ws_message_type}
 																ws_ref={ws_ref}
+																mail={mail}
+																my_data_mail={my_data}
 															></Content_Block>
 														: null}
 													</div>
@@ -2281,4 +2265,4 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 	)
 };
 
-export default Account_Current_Mails;
+export default React.memo(Account_Current_Mails);

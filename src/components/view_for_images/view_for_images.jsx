@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import cl from './view_for_images.module.css';
 
-export const View_For_Images = ({current_index_img, images, visible_images, hidden_images, current_img, set_current_img, close, type_arhiv, type_view, visible_arhiv, for_current_mails, images_for_current_mails, images_from_max, normal_images_from_current_mails, data_for_view_for_current_mails, normal_images_for_main_from_group, data_for_view_for_main}) => {
+export const View_For_Images = ({current_index_img, images, visible_images, hidden_images, current_img, set_current_img, close, type_arhiv, type_view, visible_arhiv, for_current_mails, images_for_current_mails, images_from_max, normal_images_from_current_mails, data_for_view_for_current_mails, normal_images_for_main_from_group, normal_images_for_main_from_user_page, data_for_view_for_main, type_news}) => {
 	
 	const [ new_images_array, set_new_images_array ] = useState([]);
 	const [ current_index, set_current_index ] = useState(0); //индекс для всех изображений
@@ -33,6 +33,7 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 	// 		console.log('[24] data_for_view_for_current_mails = NULL или пусто')
 	// 	}
 	// },[data_for_view_for_current_mails]);
+
 
 	useEffect(()=>{
 		// console.log('_______] view_for_images | visible_images = ', visible_images);
@@ -274,7 +275,7 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 				}
 			}
 		};
-		if( type_view === 'main' ){
+		if( type_view === 'main'){
 			if ( type_arhiv === 'bottom' ){
 				if( data_for_view_for_current_mails?.images.length > 0 ){
 					if( current_index < data_for_view_for_current_mails?.images.length-1 ){

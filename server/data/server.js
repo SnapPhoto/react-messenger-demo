@@ -14,6 +14,10 @@ const bcrypt = require('bcrypt');
 const fastifywebsocket = require('@fastify/websocket');
 const { addClient, removeClient, sendMessage, getClientsSize } = require('./websocket/tools.js');
 
+//тест голосового
+const ffmpeg = require('fluent-ffmpeg'); // ПОД ВОПРОСОМ!
+//конец тест голососого
+
 const User_Schema = require('../schemas/user');
 const Message_Schema = require('../schemas/message.js');
 const Group_Schema = require('../schemas/group.js');
@@ -1841,7 +1845,8 @@ fastify.post('/mails/change_status', async (request, reply) => {
 					await Message_Schema.updateOne({_id: current_mail._id},{$set:{status: 'check'}});
 					console.log('Изменение статуса сообщения ', mail._id, ' на "прочитано"')
 					return reply.send({
-						message:'Статус изменён на "прочитано"'
+						message:'Статус изменён на "прочитано"',
+						change: 'ok',
 					})
 				}	
 			}
@@ -3307,6 +3312,8 @@ fastify.post('/send_post_in_group', async (request, reply) => {
 		return reply.status(401).send({error: 'Данные не переданы'});
 	};
 	let type_group = '';
+	const unique_token = request?.body?.unique_token?.value || '';
+	console.log('[3315] unique_token = ', unique_token)
 
 	// отправка
 	if( !files && text ){
@@ -3323,6 +3330,7 @@ fastify.post('/send_post_in_group', async (request, reply) => {
 			},
 			role: my_user?.role,
 			type_post: type_group,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -3346,6 +3354,7 @@ fastify.post('/send_post_in_group', async (request, reply) => {
 			},
 			role: my_user?.role || 'роль не указана',
 			type_post: type_group,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -3368,6 +3377,7 @@ fastify.post('/send_post_in_group', async (request, reply) => {
 			},
 			role: my_user?.role || 'роль не указана',
 			type_post: type_group,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -3424,6 +3434,8 @@ fastify.post('/send_post_in_user_page', async (request, reply) => {
 		return reply.status(401).send({error: 'Данные не переданы'});
 	};
 	let type_content = '';
+	const unique_token = request?.body?.unique_token?.value || '';
+	console.log('[3437] unique_token = ', unique_token)
 
 	// отправка
 	if( !files && text ){
@@ -3440,6 +3452,7 @@ fastify.post('/send_post_in_user_page', async (request, reply) => {
 			},
 			role: my_user?.role,
 			type_post: type_content,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -3463,6 +3476,7 @@ fastify.post('/send_post_in_user_page', async (request, reply) => {
 			},
 			role: my_user?.role || 'роль не указана',
 			type_post: type_content,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -3485,6 +3499,7 @@ fastify.post('/send_post_in_user_page', async (request, reply) => {
 			},
 			role: my_user?.role || 'роль не указана',
 			type_post: type_content,
+			unique_token: unique_token,
 		});
 		try{
 			await new_post.save();
@@ -5935,6 +5950,7 @@ fastify.post('/get_user_page_data', async (request, reply) => {
 				last_activity: user.last_activity,
 				avatar: user.profil_avatar,
 				t_number: user.t_number,
+				online: user?.online,
 			}
 			return reply.send({
 				message: 'Данные получены',
@@ -6004,6 +6020,97 @@ fastify.post('/get_user_page_content_data', async (request, reply) => {
 	catch(err){
 		console.log('Ошибка получения контента: ', err);
 		return reply.send({error: 'Ошибка получения контента: ', err});
+	}
+});
+
+fastify.get('/check_online', async (request, reply) => {
+	console.log('/check_online')
+	const raw_token = request.headers.authorization;
+	if( !raw_token ){
+		return reply.status(400).send({error: 'Заголовок пустой'});
+	};
+	if( raw_token.split(' ')[0] !== `Bearer` ){
+		return reply.status(400).send({error: 'Некорректный токен'});
+	};
+	const token = raw_token.split(' ')[1];
+	if( !token ){
+		return reply.status(400).send({error: 'Токен не передан'});
+	}
+	const decoded = jwt.verify(token, process.env.JWT_SECRET_FIRST);
+	if( !decoded ){
+		return reply.status(401).send({error: 'Ошибка расшифровки токена'});
+	};
+	const my_id = decoded.id;
+	if( !my_id ){
+		return reply.status(401).send({error: 'Не удалось распознать ID вашего аккаунта'});
+	}
+	const other_user_id = request?.query?.user_id || undefined;
+	try{
+		const my_user = await User_Schema.findOne({_id: my_id});
+		if( !my_user ){
+			console.log('Пользователь не найден!');
+			return reply.status(401).send({error: 'Пользователь не найден!'});
+		};
+		const other_user = await User_Schema.findOne({_id: other_user_id});
+		console.log('my_online = ', my_user?.online)
+		console.log('other_online = ', other_user?.online)
+		return reply.send({
+			my_online: my_user?.online,
+			other_online: other_user?.online,
+		})
+	}
+	catch(err){
+		return reply.send({error: 'Ошибка поиска other_user'})
+	}
+	return;
+});
+
+fastify.post('/change_status_online', async (request, reply) => {
+	console.log('/change_status_online')
+	const raw_token = request.headers.authorization;
+	if( !raw_token ){
+		return reply.status(400).send({error: 'Заголовок пустой'});
+	};
+	if( raw_token.split(' ')[0] !== `Bearer` ){
+		return reply.status(400).send({error: 'Некорректный токен'});
+	};
+	const token = raw_token.split(' ')[1];
+	if( !token ){
+		return reply.status(400).send({error: 'Токен не передан'});
+	}
+	const decoded = jwt.verify(token, process.env.JWT_SECRET_FIRST);
+	if( !decoded ){
+		return reply.status(401).send({error: 'Ошибка расшифровки токена'});
+	};
+	const my_id = decoded.id;
+	if( !my_id ){
+		return reply.status(401).send({error: 'Не удалось распознать ID вашего аккаунта'});
+	}
+	const status = request?.body?.status || undefined;
+	if( !status ){
+		console.log('Ошибка: Не передан статус запроса');
+		return reply.send({error: 'Не передан статус запроса'});
+	};
+	try{
+		///
+		const user = await User_Schema.findOne({_id: my_id});
+		if(!user){
+			throw 'Пользователя нет';
+		};
+		console.log('Пользователь в сети? ', user?.online)
+		if( status === 'y' ){
+			await User_Schema.updateOne({_id: my_id},{$set: {online: true}})
+		};
+		if( status === 'n' ){
+			await User_Schema.updateOne({_id: my_id},{$set: {online: false}})
+		}; 
+		const updated_user = await User_Schema.findOne({_id: my_id});
+		console.log('[updated_user] status = ', updated_user?.status)
+		///
+	}
+	catch(err){
+		console.log('Ошибка: ',err);
+		return reply.send({error: 'Ошибка: ', err});
 	}
 });
 
@@ -7855,6 +7962,7 @@ fastify.post('/add_posts_for_main_page', async (request, reply) => {
 	const from = request?.body?.from?.value; // от куда отправка. Вроде так '_'
 	const group_id = request?.body?.group_id?.value; // id группы
 	const user_page_id = request?.body?.user_page_id?.value; // id страницы пользователя
+	const unique_token = request?.body?.unique_token?.value; // токен контента
 
 
 	// НОВОСТЬ ИЗ ГРУПП
@@ -7897,6 +8005,7 @@ fastify.post('/add_posts_for_main_page', async (request, reply) => {
 				voices: voices || [],
 				date: date || Date.now(),
 				from: from || '',
+				unique_token: unique_token,
 			});
 			await new_post.save();
 			console.log('Новостной пост добавлен!');
@@ -7937,9 +8046,10 @@ fastify.post('/add_posts_for_main_page', async (request, reply) => {
 				voices: voices || [],
 				date: date || Date.now(),
 				from: from || '',
+				unique_token: unique_token,
 			});
 			await new_post.save();
-			console.log('Новостной пост добавлен!');
+			console.log('[7958] Новостной пост добавлен!');
 			return reply.send({
 				message: 'Новостной пост добавлен!',
 				added: true,
@@ -8119,21 +8229,27 @@ fastify.post('/remove_news', async (request, reply) => {
 		console.log('Пользователь не найден!');
 		return reply.status(401).send({error: 'Пользователь не найден!'});
 	};
+	const unique_token = request?.body?.unique_token || ''
 
-	const content_id = НУЖНО КАК_ТО ПОЛУЧИТЬ ID КОНТЕНТА !!!!!!!!!!
-
-	const group_id = request?.body?.group_id;
-	if( !group_id ){
-		console.log('ID группы не передано');
-		return reply.send({error: 'ID группы не передано'})
-	};
 	try{
-		console.log('/remove_news');
-		await Posts_For_Main_Page_Schema.deleteOne({_id: })
+		if( !unique_token ){
+			throw 'Уникальный токен контента не передан';
+		};
+		const content = await Posts_For_Main_Page_Schema.findOne({unique_token: unique_token});
+		if( !content ){
+			console.log('Новостного контента нет');
+		};
+		try{
+			await Posts_For_Main_Page_Schema.deleteOne({unique_token: unique_token});
+			console.log('Новостной контент удалён! ');
+			return reply.send({message: 'Новостной контент удалён!'});
+		}
+		catch(err){
+			throw err;
+		}
 	}
 	catch(err){
 		console.log('Ошибка удаления новости: ', err);
-		return reply.send({error: 'Ошибка удаления новости: ', err});
 	}
 });
 

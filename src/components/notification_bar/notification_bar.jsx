@@ -10,6 +10,21 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 	const [new_friends_count, set_new_friends_count] = useState(0);
 	const [new_invites_count, set_new_invites_count] = useState(0);
 
+	// useEffect(()=>{
+	// 	if( localStorage.getItem('notification_uncheck_mails_count') ){
+	// 		const local_uncheck_mails_count = localStorage.getItem('notification_uncheck_mails_count');
+	// 		set_new_mails_count(local_uncheck_mails_count)
+	// 	};
+	// 	if( localStorage.getItem('notification_friends_count') ){
+	// 		const local_new_friends_count = localStorage.getItem('notification_friends_count');
+	// 		set_new_friends_count(local_new_friends_count)
+	// 	};
+	// 	if( localStorage.getItem('notification_invites_count') ){
+	// 		const local_new_invites_count = localStorage.getItem('notification_invites_count');
+	// 		set_new_invites_count(local_new_invites_count)
+	// 	};
+	// },[])
+
 	async function get_my_id(){
 		if( !token ){ return };
 		try{
@@ -47,6 +62,7 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 			// новые сообщения
 			console.log('[+]')
 			set_new_mails_count(response?.data?.uncheck_mails_count)
+			localStorage.setItem('notification_uncheck_mails_count', response?.data?.uncheck_mails_count);
 		}
 		else{
 			set_new_mails_count(0)
@@ -55,6 +71,7 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 			// новые запросы в друзья
 			console.log('[+][+]')
 			set_new_friends_count(response?.data?.new_friends_count)
+			localStorage.setItem('notification_friends_count', response?.data?.new_friends_count);
 		}
 		else{
 			set_new_friends_count(0)
@@ -63,6 +80,7 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 			// новые приглашения
 			console.log('[+][+][+]')
 			set_new_invites_count(response?.data?.new_invites_count)
+			localStorage.setItem('notification_invites_count', response?.data?.new_invites_count);
 		}
 		else{
 			set_new_invites_count(0)

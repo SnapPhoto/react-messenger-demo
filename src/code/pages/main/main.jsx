@@ -23,6 +23,7 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 	const [ images, set_images ] = useState(null);
 
 	const [ normal_images_for_main_from_group, set_normal_images_for_main_from_group ] = useState([]);
+	const [ normal_images_for_main_from_user_page, set_normal_images_for_main_from_user_page ] = useState([]);
 
 	// для просмотра фотографий
 	const [ type_arhiv, set_type_arhiv ] = useState(null);
@@ -97,22 +98,25 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 		if( all_images === undefined || all_images.length === 0 || all_images === null ){
 			return;
 		};
+
+		// для групп
+
 		if( normal_images_for_main_from_group.length > 0 ){
-			console.log('[110] normal_images_for_main_from_group = ', normal_images_for_main_from_group)
+			console.log('[105] normal_images_for_main_from_group = ', normal_images_for_main_from_group)
 			const founded_images = [];
 			images.forEach((image, index)=>{
 
-				console.log('[1589] image = ', image)
+				console.log('image = ', image)
 				image?.map((img)=>{
 					const founded_image = normal_images_for_main_from_group.find(arr_image => arr_image.name === img?.data?.loaded_file?.full_name);
 					if( founded_image ){
 
-						console.log('[1591] founded_image = true')
+						console.log('founded_image = true')
 
 						founded_images.push(founded_image);
 					}
 					else{
-						console.log('[1596] else => image...name = ', image[0]?.data?.loaded_file?.full_name);
+						console.log('else => image...name = ', image[0]?.data?.loaded_file?.full_name);
 						console.log('=> array_normal_images_from_current_mails...name => ', normal_images_for_main_from_group[0]?.name)
 					}
 				})
@@ -124,6 +128,39 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 					current_img_index: img_index,
 					images: founded_images,
 					normal_images_for_main_from_group: normal_images_for_main_from_group,
+				})
+			};
+		}
+
+		// для user_page контента
+
+		if( normal_images_for_main_from_user_page.length > 0 ){
+			console.log('[138] normal_images_for_main_from_user_page = ', normal_images_for_main_from_user_page)
+			const founded_images = [];
+			images.forEach((image, index)=>{
+
+				console.log('[image] = ', image)
+				image?.map((img)=>{
+					const founded_image = normal_images_for_main_from_user_page.find(arr_image => arr_image.name === img?.data?.loaded_file?.full_name);
+					if( founded_image ){
+
+						console.log('founded_image = true')
+
+						founded_images.push(founded_image);
+					}
+					else{
+						console.log('else => image...name = ', image[0]?.data?.loaded_file?.full_name);
+						console.log('=> array_normal_images_for_main_from_user_page...name => ', normal_images_for_main_from_user_page[0]?.name)
+					}
+				})
+			});
+			if( founded_images.length > 0 ){
+				set_normal_images_from_current_mails(founded_images);
+				set_data_for_view({
+					current_img: img,
+					current_img_index: img_index,
+					images: founded_images,
+					normal_images_for_main_from_group: normal_images_for_main_from_user_page,
 				})
 			};
 		}
@@ -187,6 +224,8 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 		if( !token ){
 			return;
 		};
+
+		// для групп
 		try{
 			if( posts.length > 0 ){
 				posts.forEach((post, index)=>{
@@ -215,17 +254,43 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 		}
 		catch(err){
 			console.error('Ошибка загрузки изображений группы', err)
+		};
+
+		// для user_page
+		try{
+			if( posts.length > 0 ){
+				posts.forEach((post, index)=>{
+					if( !post?.id_who_sended ){
+						return;
+					}
+					const files = (context) => context.keys().filter(folder=>folder.includes(post?.from)).map(context);
+					const images = files(require.context('../../../../src/images/user_page_images/', true, /\.(jpg)$/i));
+					if( images.length > 0 ){
+						console.log(`[${index}] images = `, images)
+						images.forEach((image)=>{
+							const raw_path = image?.split('/')[3];
+							console.log('raw_path = ', raw_path)
+							const img_name = raw_path.split('.')[0] + '.' + raw_path?.split('.')[2];
+							if( img_name ){
+								set_normal_images_for_main_from_user_page(normal_images_for_main_from_user_page => [...normal_images_for_main_from_user_page, {
+									path: image,
+									raw_name: raw_path,
+									name: img_name,
+								}])
+							}
+						});
+					};
+				})
+			}
+		}
+		catch(err){
+			console.error('Ошибка загрузки изображений группы', err)
 		}
 	},[posts]);
 
 	useEffect(()=>{
-		if( normal_images_for_main_from_group.length > 0 ){
-			console.log('normal_images_for_main_from_group = ', normal_images_for_main_from_group);
-		}
-	},[normal_images_for_main_from_group])	
-
-	useEffect(()=>{
 		get_posts();
+		// очиситка всех новостных постов (применяется исключительно для тестировки)
 		// clear_posts();
 	},[])
 
@@ -287,8 +352,10 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 						images_from_max={images_from_max}
 						normal_images_from_current_mails={[]}
 						normal_images_for_main_from_group={normal_images_for_main_from_group}
+						normal_images_for_main_from_user_page={normal_images_for_main_from_user_page}
 						data_for_view_for_current_mails={data_for_view}
 						data_images_from_max={data_images_from_max}
+						type_news={type_news}
 					></View_For_Images>
 				}
 				<div className='col-6'>
@@ -353,6 +420,7 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 											this_group_id={null}
 											post_for_main={true}
 											normal_images_for_main_from_group={normal_images_for_main_from_group}
+											unique_token={post?.unique_token || ''}
 										></Content_Block>
 									</div>
 								)}
@@ -365,7 +433,7 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 						posts_friends.length > 0
 						?
 							<div className={cl.block_with_contents}>
-								{posts_friends.slice().reverse().map((post)=>
+								{Array.from(posts_friends).slice().reverse().map((post)=>
 									<div className={cl.content} key={post?._id}>
 										<Content_Block
 											// types: [img],[text],[img_and_text]
@@ -391,6 +459,9 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 											this_group_id={null}
 											post_for_main={true}
 											normal_images_for_main_from_group={normal_images_for_main_from_group}
+											normal_images_for_main_from_user_page={normal_images_for_main_from_user_page}
+											for_user_page={true}
+											unique_token={post?.unique_token || ''}
 										></Content_Block>
 									</div>
 								)}
@@ -428,6 +499,7 @@ export const Main = ({my_id, visiable_panel_with_invites, set_visiable_panel_wit
 											this_group_id={null}
 											post_for_main={true}
 											normal_images_for_main_from_group={normal_images_for_main_from_group}
+											unique_token={post?.unique_token || ''}
 										></Content_Block>
 									</div>
 								)}

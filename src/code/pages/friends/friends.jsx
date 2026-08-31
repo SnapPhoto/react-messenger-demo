@@ -29,7 +29,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 
 	const [await_confirm_friends, set_await_confirm_friends] = useState([]); // входящие запросы в друзья
 
-	const [incoming_outgoing, set_incoming_outgoing] = useState('incoming');
+	const [incoming_outgoing, set_incoming_outgoing] = useState('added');
 
 	const [selected_user, set_selected_user] = useState(null);
 
@@ -168,15 +168,15 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 			return;
 		};
 		try{
+			set_is_loading_friends(true);
 			const response = await axios.post('http://localhost:8080/main/get_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
 			});
-			if( response.data?.friends ){
+			if( response.data?.friends.length > 0 ){
 				set_friends([])
 				set_default_friends([])
-				set_is_loading_friends(true);
 				const raw_friends = response.data?.friends;
 				raw_friends.forEach((friend, index)=>{
 					if( !unique_friends.has(friend?.id) ){
@@ -197,6 +197,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 			}
 			else{
 				set_is_loading_friends(false)
+				set_friends([])
 			}
 		}
 		catch(err){
@@ -295,7 +296,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 					try{
 						if( ws_ref.current !== null && ws_ref.current.readyState === 1 ){
 							ws_ref.current.send(JSON.stringify({
-								type: 'confirm_friend',
+								type: 'remove_friend',
 								for: id,
 								from: my_id,
 							}))
@@ -468,6 +469,9 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 							// backgroundColor: 'white',
 						}}>
 							<div className='col-5' style={{marginRight: '5px'}}>
+								<Button_Default onClick={()=>{set_incoming_outgoing('added'); get_friends()}} style={{width: '100%'}}>Подтверждённые</Button_Default>
+							</div>
+							<div className='col-5' style={{marginRight: '5px'}}>
 								<Button_Default onClick={()=>{set_incoming_outgoing('incoming'); get_await_confirm_friends()}} style={{width: '100%'}}>Входящие</Button_Default>
 							</div>
 							<div className='col-5' style={{marginLeft: '5px'}}>
@@ -541,7 +545,8 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 									</div>
 								}
 							</div>
-						:
+						: incoming_outgoing === 'outgoing' 
+						?
 							<div className='block-item'>
 								{outgoing_friends.length > 0 
 								?
@@ -600,66 +605,65 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 									</div>
 								}
 							</div>
+						: incoming_outgoing === 'added' &&
+							<div className='block-item'>
+								{friends.length > 0
+								?
+									<div>
+										<div>
+											Подтверждённые
+										</div>
+										{friends.map((friend, index) =>
+											<div className='people' key={index}>
+												<div className='people-data'>
+													<div className='row'>
+														<div>
+															{friend.avatar 
+															?
+																<div onClick={()=>{set_current_user(friend); navigate(`/main/${friend ? friend.id : 'user_undefined'}/page`)}} className='people-icon-true'>
+																	<img className="icon"src={avatars.find(a=>a.name === friend.avatar)?.path}/>
+																</div>
+															:
+																<div onClick={()=>{set_current_user(friend)}} className='people-icon-false'>
+																	
+																</div>
+															}
+														</div>
+														<div className='people-name' onClick={()=>{set_current_user(friend)}}>
+															{friend.name}
+														</div>
+														<div className='people-button-add'>
+															<Button_Default onClick={()=>{remove_friend(friend.id)}}>Удалить из друзей</Button_Default>
+														</div>
+													</div>
+												</div>
+												<div className='split'>
+													{/* разделитель */}
+												</div>
+											</div>
+										)}
+									</div>
+								:
+									<div>
+										{is_loading_friends === true
+										?
+											<div style={{
+												display: 'flex',
+												justifyContent: 'center',
+												padding: '10px 0',
+											}}>
+												<Loader></Loader>
+											</div>
+										:
+											<div>Друзей нет</div>
+										}
+									</div>
+								}
+							</div>
 						}
 					</div>
 
 					{/* подтверждённые s */}
-					<div className='blocks'>
-						<div className='block-item'>
-							{friends.length > 0
-							?
-								<div>
-									<div>
-										Подтверждённые
-									</div>
-									{friends.map((friend, index) =>
-										<div className='people' key={index}>
-											<div className='people-data'>
-												<div className='row'>
-													<div>
-														{friend.avatar 
-														?
-															<div onClick={()=>{set_current_user(friend); navigate(`/main/${friend ? friend.id : 'user_undefined'}/page`)}} className='people-icon-true'>
-																<img className="icon"src={avatars.find(a=>a.name === friend.avatar)?.path}/>
-															</div>
-														:
-															<div onClick={()=>{set_current_user(friend)}} className='people-icon-false'>
-																
-															</div>
-														}
-													</div>
-													<div className='people-name' onClick={()=>{set_current_user(friend)}}>
-														{friend.name}
-													</div>
-													<div className='people-button-add'>
-														<Button_Default onClick={()=>{remove_friend(friend.id)}}>Удалить из друзей</Button_Default>
-													</div>
-												</div>
-											</div>
-											<div className='split'>
-												{/* разделитель */}
-											</div>
-										</div>
-									)}
-								</div>
-							:
-								<div>
-									{is_loading_friends === true
-									?
-										<div style={{
-											display: 'flex',
-											justifyContent: 'center',
-											padding: '10px 0',
-										}}>
-											<Loader></Loader>
-										</div>
-									:
-										<div>Пустота...</div>
-									}
-								</div>
-							}
-						</div>
-					</div>
 
 					<div className='panel-with-options'>
 						<div className='panel-with-options-block'>

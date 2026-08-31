@@ -323,6 +323,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 
 	async function add_new_post(){
 		const token = localStorage.getItem('token');
+		const unique_token = Math.floor(Math.random()*10000).toString().padStart(6,'0');
 		if( text.length === 0 && files.length === 0 ){
 			return;
 		};
@@ -363,6 +364,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 				const formData_to_post = new FormData();
 				formData_to_post.append("user_page_id", user_page_id);
 				formData_to_post.append("files", JSON.stringify(loaded_files));
+				formData_to_post.append("unique_token", unique_token);
 				const response_send_post = await axios.post('http://localhost:8080/send_post_in_user_page', formData_to_post, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -374,7 +376,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 						// обновление контента
 						close_this();
 						await get_posts();
-						if( ws_ref.current !== null ){
+						if( ws_ref.current !== null && ws_ref.current.readyState === 1 ){
 							ws_ref.current.onopen = () => {
 								ws_ref.current.send(JSON.stringify({
 									type: 'new_post_user_page',
@@ -396,6 +398,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 					formData_to_post_for_main.append("images", JSON.stringify(loaded_files));
 					formData_to_post_for_main.append("from", user_page_id);
 					formData_to_post_for_main.append("user_page_id", user_page_id);
+					formData_to_post_for_main.append("unique_token", unique_token);
 					const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -426,6 +429,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 				const formData_to_post = new FormData();
 				formData_to_post.append("user_page_id", user_page_id);
 				formData_to_post.append("text", text);
+				formData_to_post.append("unique_token", unique_token);
 				const response_send_post = await axios.post('http://localhost:8080/send_post_in_user_page', formData_to_post, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -464,6 +468,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 				formData_to_post_for_main.append("from", user_page_id);
 				formData_to_post_for_main.append("user_page_id", user_page_id);
 				formData_to_post_for_main.append("text", JSON.stringify(text));
+				formData_to_post_for_main.append("unique_token", unique_token);
 				const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -515,6 +520,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 				formData_to_post.append("user_page_id", user_page_id);
 				formData_to_post.append("files", JSON.stringify(loaded_files));
 				formData_to_post.append("text", text);
+				formData_to_post.append("unique_token", unique_token);
 				const response_send_post = await axios.post('http://localhost:8080/send_post_in_user_page', formData_to_post, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -550,6 +556,7 @@ export const Form_Create_New_Record_For_User_Page = ({close, user_page_id, get_p
 					formData_to_post_for_main.append("from", user_page_id);
 					formData_to_post_for_main.append("user_page_id", user_page_id);
 					formData_to_post_for_main.append("text", JSON.stringify(text));
+					formData_to_post_for_main.append("unique_token", unique_token);
 					const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 						headers: {
 							Authorization: `Bearer ${token}`,

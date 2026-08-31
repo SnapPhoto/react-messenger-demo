@@ -189,3 +189,14 @@
 	opacity: 0;
 }
 
+
+.mail_status {
+	display: flex;
+}
+.mail_status_check {
+	border: 1px solid whitesmoke;
+}
+.mail_status_uncheck {
+	border: 1px solid gray;
+}
+

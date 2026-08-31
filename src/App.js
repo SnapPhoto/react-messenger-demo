@@ -82,7 +82,7 @@ function App(){
           if( (parsed_data?.type === 'new_post_message') || (parsed_data?.type === 'message') || (parsed_data?.type === 'remove_message') || (parsed_data?.type === 'change_message') ){
             set_ws_message_type(parsed_data)
           };
-          if( (parsed_data?.type === 'change_content_for_group') || (parsed_data?.type === 'change_content_for_mail') ){
+          if( (parsed_data?.type === 'change_content_for_group') || (parsed_data?.type === 'change_content_for_mail') || (parsed_data?.type === 'change_status_for_mail') ){
             set_ws_message_type(parsed_data)
           };
           if( (parsed_data?.type === 'join_in_group') || (parsed_data?.type === 'leave_from_group') ){
@@ -96,7 +96,7 @@ function App(){
           }
           if( parsed_data?.type === 'invite_in_group' && parsed_data?.for_user === my_id_ref.current ){
             set_ws_message_type(parsed_data)
-          }
+          };
         };
         ws.onclose = () => {
           console.log('[ws] Соединение с websocket закрыто!');
@@ -118,6 +118,32 @@ function App(){
       }
     };
   },[token])
+
+  async function change_status_online(status){
+    console.log('change_status_online')
+
+    if( !token ){
+      return;
+    };
+    const response = await axios.post('http://localhost:8080/change_status_online', {
+      status: status,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  }
+
+  useEffect(()=>{
+    if( ws_ref.current !== null && ws_ref.current?.readyState === 1 ){
+      // смена статуса на [В сети]
+      change_status_online('y')
+    }
+    if( ws_ref.current?.readyState === 0 ){
+      // смена статуса на [Не в сети]
+      change_status_online('n')
+    }
+  },[ws_ref])
 
   async function verify_token(){
     try{

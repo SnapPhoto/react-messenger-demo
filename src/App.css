@@ -2014,6 +2014,13 @@ img {
 
 
 /*  user_page.js  */
+.online {
+	display: flex;
+	flex-direction: row;
+	justify-content: right;
+	padding: 10px;
+	white-space: nowrap;
+}
 .user_page_body_content {
 	display: block;
 	position: relative;

@@ -21,5 +21,15 @@
 	box-sizing: border-box;
 	border: 1px solid lightgray;
 	border-radius: 50%;
+}
+.notification_bar_start {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	width: calc(8px + 2vmin);
+	height: calc(8px + 2vmin);
+	box-sizing: border-box;
+	border: 1px solid lightgray;
+	border-radius: 50%;
 	animation: flash 0.5s ease;
 }

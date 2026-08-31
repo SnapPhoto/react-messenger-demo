@@ -6,11 +6,12 @@ import axios from 'axios';
 import Change_Content_Panel from '../../components/change_content/change_content.jsx';
 // import FormChange_Content from '../../components/change_content/change_content.jsx';
 
-export const Content_Block = ({type, role, img, data, id, text, visiable, posts_images, curr_user, group_id, refresh_posts, date, changed, user_id, hidden, this_my_page, this_my_group, set_visiable_view_for_images, set_current_img_for_view, new_images_array, my_id, other_id, for_current_mails, images_from_max, select_img_for_view, normal_images_from_current_mails, data_images_from_max, mail_id, this_my_message, this_group_id, content_id_for_current_mails, func_scroll_to_it_after_changed, voice, post_for_main, normal_images_for_main_from_group, this_user_page, this_group, ws_message_type, ws_ref}) => {
+export const Content_Block = ({type, role, img, data, id, text, visiable, posts_images, curr_user, group_id, refresh_posts, date, changed, user_id, hidden, this_my_page, this_my_group, set_visiable_view_for_images, set_current_img_for_view, new_images_array, my_id, other_id, for_current_mails, images_from_max, select_img_for_view, normal_images_from_current_mails, data_images_from_max, mail_id, this_my_message, this_group_id, content_id_for_current_mails, func_scroll_to_it_after_changed, voice, post_for_main, normal_images_for_main_from_group, normal_images_for_main_from_user_page, this_user_page, this_group, ws_message_type, ws_ref, unique_token, for_user_page, mail, my_data_mail}) => {
 	// types: [img],[text],[img_and_text]
 	// this_user_page - показатель, что это страница; [true/false]
 	// my_id - мой id;
 	// other_id - id пользователя, с которым осуществляется переписка (в current_mails);
+
 
 	const [remove, set_remove] = useState(false);
 	const [options, set_options] = useState(false);
@@ -21,6 +22,29 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	const [form_change_visiable, set_form_change_visiable] = useState(false);
 	const [text_with_links, set_text_with_links] = useState([]);
 	const [ normal_images, set_normal_images ] = useState([]); 
+
+	const component_ref = useRef(null);
+
+	const [this_my_mail, set_this_my_mail] = useState(true);
+
+	useEffect(()=>{
+		if( mail?._id ){
+			if( mail.from === my_id ){
+				set_this_my_mail('my')
+			}
+			else{
+				set_this_my_mail('other')
+			}
+		}
+	},[mail])
+
+	useEffect(()=>{
+		console.log('[normal_images_for_main_from_group] = ', normal_images_for_main_from_group);
+	},[normal_images_for_main_from_group]);
+
+	useEffect(()=>{
+		console.log('[normal_images_for_main_from_user_page] = ', normal_images_for_main_from_user_page)	
+	},[normal_images_for_main_from_user_page])
 
 	useEffect(()=>{
 		if( !for_current_mails	){
@@ -204,6 +228,20 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 							}
 							catch(err){
 								console.error('Ошибка удаления файла: ', err);
+							};
+
+							//удаление из новостного канала
+							try{
+								const response = await axios.post('http://localhost:8080/remove_news', {
+									unique_token: unique_token
+								}, {
+									headers: {
+										Authorization: `Bearer ${token}`
+									}
+								})
+							}
+							catch(err){
+								throw err;
 							}
 
 							// удаление новостного поста (если есть)
@@ -284,6 +322,20 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 							}
 							catch(err){
 								console.error('Ошибка удаления файла: ', err);
+							};
+
+							//удаление из новостного канала
+							try{
+								const response = await axios.post('http://localhost:8080/remove_news', {
+									unique_token: unique_token
+								}, {
+									headers: {
+										Authorization: `Bearer ${token}`
+									}
+								})
+							}
+							catch(err){
+								throw err;
 							}
 						})
 					})
@@ -503,28 +555,87 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	// 	}
 	// },[normal_images])
 
-	useEffect(()=>{
+	async function change_mail_status(id){
+		const token = localStorage.getItem('token')
+		if( !token ){
+			return;
+		}
+		try{
+			// если статус не прочитано
+			if( mail?.status === 'uncheck' && this_my_mail === 'other' ){
+				const response = await axios.post('http://localhost:8080/mails/change_status',{
+					mail: mail
+				},{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				})
+				if( response?.data?.change === 'ok' ){
+					refresh_posts();
 
-	},[img])
+					// проброс через websocket
+					if( ws_ref.current !== null && ws_ref.current.readyState === 1 ){
+						ws_ref.current.send(JSON.stringify({
+							type: 'change_status_for_mail',
+							for: curr_user
+						}));
+					};
+				}
+			}
+			else{
+				console.log('НЕ МОГУ ИЗМЕНИТЬ СТАТУС! this_my_mail = ', this_my_mail)
+			}
+		}
+		catch(err){
+			console.error('Ошибка: ', err);
+			return;
+		}
+	}
+
+	useEffect(()=>{
+		if( component_ref.current !== null ){
+			const element = component_ref.current;
+			if( !element ){ return; }
+			const observer = new IntersectionObserver((entries)=>{
+				const entry = entries[0]
+				if( entry.isIntersecting ){
+					// видно (прочитано)
+					// сперва обновляем статус у поста
+					change_mail_status(id);
+				}
+				else{
+					// не видно
+				}
+			});
+			observer.observe(element);
+			return () => {
+				observer.disconnect();
+			};
+		};
+	},[this_my_mail, component_ref])
 
 	return (
-		<div className={
-			type === 'img'
-			?
-				cl.content_img
-			:
-			type === 'text'
-			?
-				cl.content_text
-			:
-			type === 'img_and_text'
-			?
-				cl.content_img_and_text
-			:
-				''
+		<div ref={component_ref}
+			className={
+				type === 'img'
+				?
+					cl.content_img
+				:
+				type === 'text'
+				?
+					cl.content_text
+				:
+				type === 'img_and_text'
+				?
+					cl.content_img_and_text
+				:
+					''
 			}
 			content_id={id || content_id_for_current_mails}
-		>		
+		>	
+			<div className={cl.mail_status}>
+				{mail && mail.status === 'uncheck' ? <div className={cl.mail_status_uncheck}></div> : <div className={cl.mail_status_check}></div>}
+			</div>	
 			{form_change_visiable
 			&&
 				<div className={cl.change_panel}>
@@ -570,7 +681,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 				:
 					''
 			}>
-				{type === 'img' && !for_current_mails && !post_for_main &&
+				{type === 'img' && !for_current_mails && !post_for_main && !for_user_page &&
 					<div className={cl.forma}>
 						<div className={cl.img_container}>
 							{images.length > 0 &&
@@ -647,9 +758,10 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						</div>
 					</div>
 				}
-				{type === 'text' && !for_current_mails && !post_for_main &&
+				{type === 'text' && !for_current_mails && !post_for_main && !for_user_page && 
 					<div className={cl.forma}>
 						<div className={cl.text}>
+							{/* {unique_token || 'пусто'} */}
 							{text_with_links.map((text, index)=>
 								text?.link
 								?
@@ -660,7 +772,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						</div>
 					</div>
 				}
-				{type === 'img_and_text' && !for_current_mails && !post_for_main &&
+				{type === 'img_and_text' && !for_current_mails && !post_for_main && !for_user_page &&
 					<div className={cl.forma}>
 						<div className={cl.img_container}>
 							{images.length > 0 &&
@@ -742,10 +854,8 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 				}
 
 				{/* ДЛЯ СООБЩЕНИЙ */}
-
-				{type === 'img' && for_current_mails && normal_images.length > 0 && !post_for_main &&
+				{type === 'img' && for_current_mails && normal_images.length > 0 && !post_for_main && !for_user_page &&
 					<div className={cl.forma}>
-						{/* контент id = {content_id_for_current_mails} */}
 						<div className={cl.img_container_for_current_mails}>
 							{images.length > 0 &&
 								<div key={Date.now()} className={images.length === 1 ? cl.cell_one : cl.img_block}>
@@ -785,8 +895,8 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 										{images.map((i,index)=>
 											(index >= 0 && index < 2)
 											?	
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 													{/* 
 														i = изображение, 
 														index = индекс изображения, 
@@ -797,14 +907,14 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 											:
 											(index >= 2 && index < 4)
 											?
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 												</div>
 											:
 											(index >= 4 && index < 6)
 											&&
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 												</div>
 										)}
 									</div>
@@ -813,7 +923,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						</div>
 					</div>
 				}
-				{type === 'img_and_text' && for_current_mails && !post_for_main &&
+				{type === 'img_and_text' && for_current_mails && !post_for_main && !for_user_page && 
 					<div className={cl.forma}>
 						{/* контент id = {content_id_for_current_mails} */}
 						<div className={cl.img_container_for_current_mails}>
@@ -855,20 +965,20 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 										{images.map((i,index)=>
 											(index >= 0 && index < 2)
 											?	
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 												</div>
 											:
 											(index >= 2 && index < 4)
 											?
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 												</div>
 											:
 											(index >= 4 && index < 6)
 											&&
-												<div key={Date.now()+index} className={cl.img}>
-													<img onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+												<div key={i?.data?.loaded_file?.name} className={cl.img}>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}}  src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
 												</div>
 										)}
 									</div>
@@ -879,8 +989,8 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 							{text}
 						</div>
 					</div>
-				}
-				{type === 'text' && for_current_mails && !post_for_main &&
+				} 
+				{type === 'text' && for_current_mails && !post_for_main && !for_user_page &&
 					<div className={cl.forma}>
 						{/* контент id = {content_id_for_current_mails} */}
 						<div className={cl.text}>
@@ -897,9 +1007,10 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 
 				{/* ДЛЯ НОВОСТНЫХ ПОСТОВ */}
 
-				{type === 'img' && post_for_main &&
+				{type === 'img' && post_for_main && 
 					<div className={cl.forma}>
 						<div className={cl.img_container}>
+							{/* {unique_token} */}
 							{images.length > 0 &&
 								images.map((img, index_img) =>	
 									<div key={index_img} className={img.length === 1 ? cl.cell_one : cl.img_block}>
@@ -940,19 +1051,34 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 												(index >= 0 && index < 2)
 												?	
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path}/>
+														{ !for_user_page 
+															?
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+															:
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_user_page); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_user_page.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+														}
 													</div>
 												:
 												(index >= 2 && index < 4)
 												?
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path}/>
+														{ !for_user_page 
+															?
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+															:
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_user_page); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_user_page.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+														}
 													</div>
 												:
 												(index >= 4 && index < 6)
 												&&	normal_images_for_main_from_group.length > 0 &&
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path}/>
+														{ !for_user_page 
+															?
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_group); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_group.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+															:
+																<img onClick={()=>{select_img_for_view(i, index, images, normal_images_for_main_from_user_page); set_visiable_view_for_images(true)}} src={normal_images_for_main_from_user_page.find(c => c?.name === i?.data?.loaded_file?.full_name)?.path} alt={''}/>
+														}
 													</div>
 											)}
 										</div>
@@ -1101,4 +1227,4 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	);
 };
 
-export default Content_Block;
+export default React.memo(Content_Block);

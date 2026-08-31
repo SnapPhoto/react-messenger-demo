@@ -17,10 +17,6 @@ const Posts_For_Main_Page = new mongoose.Schema({
 		type: String,
 		default: "all",
 	},
-	content_id: {
-		type: String,
-		required: true,
-	},
 	type_post: {
 		type: String,
 		required: true,
@@ -43,6 +39,10 @@ const Posts_For_Main_Page = new mongoose.Schema({
 	},
 	from: {
 		type: String,
+	},
+	unique_token: {
+		type: String,
+		default: '',
 	},
 });
 

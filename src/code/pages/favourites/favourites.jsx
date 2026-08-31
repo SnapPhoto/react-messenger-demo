@@ -256,19 +256,25 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 											{
 												favourite_with_type_user_page.map(favourite =>
 													<div key={favourite?.content_id} className={cl.favourite_item}>
-														<div className={cl.row}>
-															<div className={cl.block_data}>
-																{favourite?.content_data?.img_path &&
-																	<div className={cl.img}>
-																		<img src={favourite?.content_data?.img_path} alt="img"/>
+														<div className='row padding-10-0'>
+															<div className='col-9 t-a-l'>
+																<div className={cl.block_data}>
+																	{favourite?.content_data?.img_path &&
+																		<div className={cl.img}>
+																			<Link to={`/main/${favourite?.content_id}/page`}>
+																				<img src={favourite?.content_data?.img_path} alt="img"/>
+																			</Link>
+																		</div>
+																	}
+																	<div className={cl.name}>
+																		{favourite?.content_user_name}
 																	</div>
-																}
-																<div className={cl.name}>
-																	{favourite?.content_user_name}
 																</div>
 															</div>
-															<div className={cl.clear} onClick={()=>{clear_favourite(favourite)}}>
-																удалить
+															<div className='col-1'>
+																<div className={cl.clear} onClick={()=>{clear_favourite(favourite)}}>
+																	удалить
+																</div>
 															</div>
 														</div>
 													</div>
@@ -377,7 +383,9 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 																<div className={cl.block_data}>
 																	{favourite?.content_data?.img_path &&
 																		<div className={cl.img}>
-																			<img src={favourite?.content_data?.img_path} alt="img"/>
+																			<Link to={`/main/current_group/${favourite?.content_id}/page`}>
+																				<img src={favourite?.content_data?.img_path} alt="img"/>
+																			</Link>
 																		</div>
 																	}
 																	<div className={cl.name}>

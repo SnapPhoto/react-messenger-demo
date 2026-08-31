@@ -36,6 +36,10 @@ const Post_User_Page_Schema = new mongoose.Schema({
 	hide: {
 		type: String,
 		default: false,
+	},
+	unique_token: {
+		type: String,
+		default: ''
 	}
 });
 

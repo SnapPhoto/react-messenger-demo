@@ -176,8 +176,18 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 		};
 	},[files]);
 
+	async function get_content(){
+		try{
+			
+		}
+		catch(err){
+			console.log('Ошибка: ', err);
+		}
+	};
+
 	async function add_new_post(){
 		const token = localStorage.getItem('token');
+		const unique_token = Math.floor(Math.random()*10000).toString().padStart(6,'0');
 		if( text.length === 0 && files.length === 0 ){
 			return console.log('Отмена');
 		};
@@ -245,6 +255,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 					const formData_to_post = new FormData();
 					formData_to_post.append("group_id", group_data._id);
 					formData_to_post.append("files", JSON.stringify(loaded_files));
+					formData_to_post.append("unique_token", unique_token || '');
 					const response_send_post = await axios.post('http://localhost:8080/send_post_in_group', formData_to_post, {
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -282,6 +293,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 					formData_to_post_for_main.append("images", JSON.stringify(loaded_files));
 					formData_to_post_for_main.append("from", group_data._id);
 					formData_to_post_for_main.append("group_id", group_data?._id);
+					formData_to_post_for_main.append("unique_token", unique_token || '');
 					const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -309,6 +321,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 				const formData_to_post = new FormData();
 				formData_to_post.append("group_id", group_data._id);
 				formData_to_post.append("text", text);
+				formData_to_post.append("unique_token", unique_token || '');
 				const response_send_post = await axios.post('http://localhost:8080/send_post_in_group', formData_to_post, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -347,6 +360,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 				formData_to_post_for_main.append("text", JSON.stringify(text));
 				formData_to_post_for_main.append("from", group_data._id);
 				formData_to_post_for_main.append("group_id", group_data?._id);
+				formData_to_post_for_main.append('unique_token', unique_token || '');
 				const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -403,6 +417,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 				formData_to_post.append("group_id", group_data._id);
 				formData_to_post.append("files", JSON.stringify(loaded_files));
 				formData_to_post.append("text", text);
+				formData_to_post.append("unique_token", unique_token || '');
 				const response_send_post = await axios.post('http://localhost:8080/send_post_in_group', formData_to_post, {
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -441,6 +456,7 @@ export const Form_Create_New_Record = ({close, type, group_data, get_posts, crea
 				formData_to_post_for_main.append("text", JSON.stringify(text));
 				formData_to_post_for_main.append("from", group_data._id);
 				formData_to_post_for_main.append("group_id", group_data?._id);
+				formData_to_post_for_main.append("unique_token", unique_token || '');
 				const response_send_post_in_main = await axios.post('http://localhost:8080/add_posts_for_main_page', formData_to_post_for_main, {
 					headers: {
 						Authorization: `Bearer ${token}`,

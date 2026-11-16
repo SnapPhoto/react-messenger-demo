@@ -119,12 +119,14 @@ export const Form_Change_Record = ({
         if (Array.isArray(value)) {
           for (const child of value) {
             const loaded = get_loaded_file(child, depth + 1);
-            if (loaded.name || loaded.file_name || loaded.full_name) return loaded;
+            if (loaded.name || loaded.file_name || loaded.full_name)
+              return loaded;
           }
           return {};
         }
         if (typeof value !== "object") return {};
-        if (value.loaded_file) return get_loaded_file(value.loaded_file, depth + 1);
+        if (value.loaded_file)
+          return get_loaded_file(value.loaded_file, depth + 1);
         if (value.old_file) return get_loaded_file(value.old_file, depth + 1);
         if (value.data) return get_loaded_file(value.data, depth + 1);
         return value.name || value.file_name || value.full_name ? value : {};
@@ -134,16 +136,22 @@ export const Form_Change_Record = ({
       for (const entry of entries) {
         const file_entry = entry?.old_file || entry;
         const loaded = get_loaded_file(file_entry);
-        const filename_candidates = [loaded.name, loaded.file_name, loaded.full_name]
-          .filter((name) => typeof name === "string" && name.length > 0);
+        const filename_candidates = [
+          loaded.name,
+          loaded.file_name,
+          loaded.full_name,
+        ].filter((name) => typeof name === "string" && name.length > 0);
         if (filename_candidates.length === 0) continue;
         const found = asset_entries.find(({ key }) => {
           const raw_filename = key.split("/").pop() || "";
           return filename_candidates.some(
-            (filename) => asset_filename(key) === filename || raw_filename === filename,
+            (filename) =>
+              asset_filename(key) === filename || raw_filename === filename,
           );
         });
-        const preview = found?.asset || `http://localhost:8080/images/max/${encodeURIComponent(filename_candidates[0])}`;
+        const preview =
+          found?.asset ||
+          `http://localhost:8080/images/max/${encodeURIComponent(filename_candidates[0])}`;
         next_files.push({ old_file: file_entry, type: "empty" });
         next_previews.push(preview);
       }

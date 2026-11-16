@@ -62,7 +62,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		return {
 			name: filename,
 			full_name: loaded_file?.full_name || filename,
-			path: `http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`,
+			path: `/images/max/${encodeURIComponent(filename)}`,
 		};
 	}
 

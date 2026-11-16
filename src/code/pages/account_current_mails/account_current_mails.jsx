@@ -161,7 +161,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			return {
 				name: filename,
 				full_name: loaded.full_name || filename,
-				path: `http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`,
+				path: `/images/max/${encodeURIComponent(filename)}`,
 				index,
 			};
 		}).filter(Boolean);
@@ -266,7 +266,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				const loaded = response?.data?.loaded_file || response?.loaded_file;
 				const filename = loaded?.name || loaded?.file_name || loaded?.full_name;
 				if( typeof filename === 'string' && filename ){
-					image_urls.add(`http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`);
+					image_urls.add(`/images/max/${encodeURIComponent(filename)}`);
 				}
 			}
 		});

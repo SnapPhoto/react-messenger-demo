@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: "unless-stopped"
+
+  backend:
+    image: messenger-backend:latest
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./server/data/.env
+    restart: unless-stopped
+
+  frontend:
+    image: messenger-frintend:latest
+    build: .
+    ports:
+      - "3000:80"
+    restart: unless-stopped

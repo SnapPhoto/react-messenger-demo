@@ -104,6 +104,8 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 	const [ voice_recorded, set_voice_recorded ] = useState(null);
 	const rec_voice_button_ref = useRef(null);	// кнопка записи ref
 	const [voice_sended, set_voice_sended] = useState(false);
+	const [is_sending, set_is_sending] = useState(false);
+	const is_sending_ref = useRef(false);
  
 	// для возврата к элементу после изменения
 	const changed_element_ref = useRef(null);
@@ -148,66 +150,31 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 		};
 	},[loading_page])
 
-	const set_select_img_for_view_callback_func = useCallback((img, img_index, images, all_images)=>{
-		const token = localStorage.getItem('token');
-		if( !token ){
-			return;
-		};
-		if( img ){
-			console.log('******* img = ', img);
-		};
-		if( img_index !== null ){
-			console.log('******* img_index = ', img_index);
-		};
-		if( images ){
-			console.log('******* images = ', images);
-		};
-		const unique_normal_images_from_current_mails = new Set();
-		const array_normal_images_from_current_mails = [];
-		if( img && img_index !== null && images ){
-			images_from_max.forEach((image, img_index)=>{
-				const raw_image = image;
-				const raw_name = raw_image.split('/')[3].split('.');
-				const name = raw_name[0] + '.' + raw_name[2];
-				if( !unique_normal_images_from_current_mails.has(name) ){
-					unique_normal_images_from_current_mails.add(name);
-					array_normal_images_from_current_mails.push({
-						path: image,
-						name: name,
-					});
-				}
-			});
-		};
-		if( array_normal_images_from_current_mails.length > 0 ){
-			// console.log('[1586] array_normal_images_from_current_mails = ', array_normal_images_from_current_mails)
-			const founded_images = [];
-			images.forEach((image, index)=>{
-
-				// console.log('[1589] image = ', image)
-
-				const founded_image = array_normal_images_from_current_mails.find(arr_image => arr_image.name === image?.data?.loaded_file?.name);
-				if( founded_image ){
-
-					console.log('[1591] founded_image = true')
-
-					founded_images.push(founded_image);
-				}
-				else{
-					console.log('[1596] else => image...name = ', image[0]?.data?.loaded_file?.name);
-					console.log('=> array_normal_images_from_current_mails...name => ', array_normal_images_from_current_mails[0]?.name)
-				}
-			});
-			if( founded_images.length > 0 ){
-				set_normal_images_from_current_mails(founded_images);
-				set_data_for_view({
-					current_img: img,
-					current_img_index: img_index,
-					images: founded_images,
-					array_normal_images_from_current_mails: array_normal_images_from_current_mails
-				})
+	const set_select_img_for_view_callback_func = useCallback((img, img_index, images)=>{
+		if( !img || !Array.isArray(images) ) return;
+		const basename = value => typeof value === 'string' ? value.split(/[\\/]/).pop().replace(/["']/g, '') : '';
+		const gallery_images = images.map((entry, index) => {
+			const loaded = entry?.data?.loaded_file || entry?.loaded_file || {};
+			const filename = [loaded.name, loaded.file_name, loaded.path, loaded.file_path, loaded.full_name]
+				.map(basename).find(name => /\.(jpg|jpeg|png|webp|gif)$/i.test(name || ''));
+			if( !filename ) return null;
+			return {
+				name: filename,
+				full_name: loaded.full_name || filename,
+				path: `http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`,
+				index,
 			};
-		}
-	},[loading_page])
+		}).filter(Boolean);
+		if( gallery_images.length === 0 ) return;
+		set_normal_images_from_current_mails(gallery_images);
+		const selected_index = Math.max(0, gallery_images.findIndex(image => image.index === img_index));
+		set_data_for_view({
+			current_img: {...gallery_images[selected_index], img_index: selected_index},
+			current_img_index: selected_index,
+			images: gallery_images,
+			array_normal_images_from_current_mails: gallery_images,
+		});
+	},[])
 
 	useEffect(()=>{
 		if( images_from_max.length > 0 ){
@@ -287,20 +254,23 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 	};
 
 	function get_images_from_folder_MAX(){
-		const unique_images_from_folder_max = new Set();
-		console.log('[get_images_from_folder_MAX]')
-		const files = (context) => context.keys().map(context);
-		const images = files(require.context(`../../../../src/images/max/`, false, /\.(jpg)$/));
-		if( images.length > 0 ){
-			images.map((img)=>{
-				// console.log('[186] img = ', img)
-				// set_images_from_max(images_from_max => [...images_from_max, img]);
-				if( !unique_images_from_folder_max.has(img) ){
-					unique_images_from_folder_max.add(img);
-					set_images_from_max(images_from_max => [...images_from_max, img]);	
+		const image_urls = new Set();
+		const image_entries = Array.isArray(mails) ? mails : [];
+		image_entries.forEach(mail => {
+			let raw_images = mail?.img;
+			if( typeof raw_images === 'string' ){
+				try { raw_images = JSON.parse(raw_images); } catch { raw_images = []; }
+			}
+			for( const entry of Array.isArray(raw_images) ? raw_images : [] ){
+				const response = typeof entry === 'string' ? (()=>{try{return JSON.parse(entry)}catch{return null}})() : entry;
+				const loaded = response?.data?.loaded_file || response?.loaded_file;
+				const filename = loaded?.name || loaded?.file_name || loaded?.full_name;
+				if( typeof filename === 'string' && filename ){
+					image_urls.add(`http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`);
 				}
-			});
-		}
+			}
+		});
+		set_images_from_max(Array.from(image_urls));
 	};
 	useEffect(()=>{
 		get_images_from_folder_MAX();
@@ -642,11 +612,20 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 		// close(false);
 	}
 
-	async function add_new_post(){
-		const token = localStorage.getItem('token');
+	function handle_send_click(event){
+		if( is_sending_ref.current ) return;
 		if( mail_text.length === 0 && selected_files.length === 0 && voice_recorded === null ){
 			return console.log('Отмена');
 		};
+		is_sending_ref.current = true;
+		set_is_sending(true);
+		event.currentTarget.disabled = true;
+		void add_new_post();
+	}
+
+	async function add_new_post(){
+		try{
+		const token = localStorage.getItem('token');
 
 		if( voice_recorded ){
 			set_mail_text('');
@@ -668,6 +647,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 							formData.append('my_data', my_data);
 							formData.append('name_of_current_mail', name_of_current_mail);
 							formData.append('file_index', index);
+							formData.append('other_id', String(curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user));
 							formData.append('file', file);
 							const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
 								headers: {
@@ -675,7 +655,6 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 								}
 							});
 							if( response ){
-								// КАК-ТО СДЕЛАТЬ ПРОВЕРКУ СТАТУСА ПРОМИСА. Promise?.status НЕ РАБОТАЕТ!
 								return response;
 							}
 							else{
@@ -684,8 +663,9 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 						});
 						const loaded_files = await Promise.all(uploaded_files);
 						console.log('Предзагруженные файлы: ',loaded_files)
-						if( !loaded_files ){
-							return console.error('Не удалось подготовить файлы');
+						const failed_uploads = loaded_files.filter(response => !response?.data?.loaded_file);
+						if( failed_uploads.length > 0 || loaded_files.length !== selected_files.length ){
+							return console.error(`Не загружены все изображения: ${loaded_files.length - failed_uploads.length}/${selected_files.length}`);
 						};
 						// ШАГ 2 - ОТПРАВКА ПОСТА
 						console.log('___ОТПРАВКА ИЗОБРАЖЕНИЯ [381]___')
@@ -728,6 +708,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 							const formData = new FormData();
 							formData.append('type', 'file');
 							formData.append('file_index', index);
+							formData.append('other_id', String(curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user));
 							formData.append('file', file);
 							const response = await axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
 								headers: {
@@ -840,11 +821,12 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				try{
 					console.log('Предзагрузка файлов для сообщения...');
 					console.log('495')
-					const uploaded_files = selected_files.map((file, index) => {
+					const uploaded_files = selected_files.map(async (file, index) => {
 						const formData = new FormData();
 						formData.append('file_index', index);
+						formData.append('other_id', String(other_id || (curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user)));
 						formData.append('file', file);
-						const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+						const response = await axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
 							headers: {
 								Authorization: `Bearer ${token}`
 							}
@@ -859,8 +841,9 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					});
 					const loaded_files = await Promise.all(uploaded_files);
 					console.log('Предзагруженные файлы: ',loaded_files)
-					if( !loaded_files ){
-						return console.error('Не удалось подготовить файлы');
+					const failed_uploads = loaded_files.filter(response => !response?.data?.loaded_file);
+					if( failed_uploads.length > 0 || loaded_files.length !== selected_files.length ){
+						return console.error(`Не загружены все изображения: ${loaded_files.length - failed_uploads.length}/${selected_files.length}`);
 					};
 					// ШАГ 2 - ОТПРАВКА ПОСТА
 					const formData_to_post = new FormData();
@@ -948,6 +931,10 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				}
 			}
 		}
+		} finally {
+			is_sending_ref.current = false;
+			set_is_sending(false);
+		}
 	};
 
 	async function sender_mail(){
@@ -977,6 +964,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				const uploaded_files = selected_files.map((file, index) => {
 					const formData = new FormData();
 					formData.append('file_index', index);
+					formData.append('other_id', String(other_id || (curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user)));
 					formData.append('file', file);
 					const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
 						headers: {
@@ -1233,7 +1221,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			console.log('Вы выбрали файлы: ', files);
 			Array.from(files).forEach((file, index)=>{
 				console.log('FILE = ', file)
-				if( files.size > 10 * 1024 * 1024 ){
+				if( file.size > 10 * 1024 * 1024 ){
 					console.warn(`Файл [${file}] превышает размер 10 мб`);
 					return;
 				};
@@ -1242,8 +1230,6 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					return
 				};
 				files_for_preview.push(url);
-				set_selected_files(files[0]);
-				set_selected_files_array(files);
 				files_for_preload.push({file: file, file_index: index});
 				console.log('Вы выбрали: ', files[index]);
 				const reader = new FileReader();
@@ -1280,6 +1266,8 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			})
 			if( files_for_preview.length > 0 ){
 				set_preview_url(files_for_preview);
+				set_selected_files(Array.from(files));
+				set_selected_files_array(Array.from(files));
 			};
 		}
 		else {
@@ -1292,7 +1280,8 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				return
 			};
 			set_preview_url(url);
-			set_selected_files(files[0]);
+			set_selected_files([files[0]]);
+			set_selected_files_array([files[0]]);
 			files_for_preload.push({file: files[0], file_index: 0});
 			if( files_for_preload.length > 0 ){
 				console.log('files_for_preload = ', files_for_preload);
@@ -1922,7 +1911,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					{visiable_view_for_images &&
 						<View_For_Images
 							images={normal_images_from_current_mails}
-							current_img={null}
+							current_img={data_for_view?.current_img || null}
 							close={()=>{set_data_for_view(null); set_visiable_view_for_images(false)}}
 							visible_arhiv={null}
 							type_arhiv={null}
@@ -2253,8 +2242,8 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 										></textarea>
 									</div>
 								}
-								<div className="form-row-submit" style={{pointerEvents: recording_voice ? 'none' : '', opacity: recording_voice ? '0.2' : '1'}}>
-									<Button_Default onClick={()=>{add_new_post()}}>Отправить</Button_Default>
+								<div className="form-row-submit" style={{pointerEvents: recording_voice || is_sending ? 'none' : '', opacity: recording_voice || is_sending ? '0.2' : '1'}}>
+									<Button_Default type="button" disabled={is_sending || recording_voice} onClick={handle_send_click}>{is_sending ? 'Отправка…' : 'Отправить'}</Button_Default>
 								</div>
 							</div>
 						</form>

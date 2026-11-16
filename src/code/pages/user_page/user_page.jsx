@@ -16,7 +16,33 @@ import User_Page_More_Groups_Panel from '../../../components/user_page_more_grou
 import User_Page_More_Friends_Panel from '../../../components/user_page_more_friends_panel/user_page_more_friends_panel';
 import Invites_Page from '../invites_page/invites_page.jsx';
 import View_For_Images from '../../../components/view_for_images/view_for_images.jsx';
+import Arhiv from '../../../components/arhiv/arhiv.jsx';
 import Notification_Bar from '../../../components/notification_bar/notification_bar.jsx';
+
+function normalize_user_post_images(images){
+	let value = images;
+	if( typeof value === 'string' ){
+		try { value = JSON.parse(value); } catch { return []; }
+	}
+	if( !Array.isArray(value) ) return [];
+	const result = [];
+	for( const entry of value ){
+		let parsed = entry;
+		if( typeof parsed === 'string' ){
+			try { parsed = JSON.parse(parsed); } catch { continue; }
+		}
+		for( const item of Array.isArray(parsed) ? parsed : [parsed] ){
+			if( typeof item === 'string' ){
+				try {
+					const decoded = JSON.parse(item);
+					result.push(...(Array.isArray(decoded) ? decoded : [decoded]));
+				} catch { continue; }
+			}
+			else if( item && typeof item === 'object' ) result.push(item);
+		}
+	}
+	return result;
+}
 
 export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id, token, set_s_user, visiable_panel_with_invites, set_visiable_panel_with_invites, ws_message_type, ws_ref, my_name, all_notifications}) => {
 	const [user, set_user] = useState(null);
@@ -62,6 +88,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 	const [visiable_form, set_visiable_form] = useState(false);
 	const [visiable_settings_user_page, set_visiable_settings_user_page] = useState(false);
 	const [visiable_panel_with_hidden_post ,set_visiable_panel_with_hidden_post] = useState(false);
+	const [visiable_user_images, set_visiable_user_images] = useState(false);
 
 	// для просмотра фоток
 	const [ visiable_view_for_images, set_visiable_view_for_images ] = useState(false);
@@ -261,29 +288,35 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 	};
 
 	useEffect(()=>{
-		console.log('посты = ', posts)
-		const token = localStorage.getItem('token');
-		if( !token ){
-			return;
-		};
-		try{
-			if( require_images ){
-				const context = require.context('../../../../src/images/user_page_images/', true, /\.(jpg)$/);
-				const current_folder = context.keys().filter(folder => folder.includes(`/${user_id}/`));
-				if( current_folder ){
-					const current_images = current_folder.map(img => context(img, false, /\.(jpg)$/));
-					if( current_images.length > 0 ){
-						console.log('current_images = ', current_images)
-						set_posts_images(current_images);
-						set_require_images(false);
-					}
-					else{ console.log('пусто')}
-				}
+		const files = posts.flatMap(post => {
+			let images = post?.images;
+			if( typeof images === 'string' ){
+				try { images = JSON.parse(images); } catch { images = []; }
 			}
-		}
-		catch(err){
-			console.error('Ошибка загрузки изображений группы', err)
-		}
+			return Array.isArray(images) ? images : [];
+		});
+		const unique_names = new Set();
+		const entries = files.flatMap(entry => {
+			let decoded = entry;
+			if( typeof decoded === 'string' ){
+				try { decoded = JSON.parse(decoded); } catch { return []; }
+			}
+			return Array.isArray(decoded) ? decoded : [decoded];
+		});
+		const current_images = entries.flatMap(data => {
+			const loaded = data?.data?.loaded_file || data?.loaded_file;
+			const filename = loaded?.full_name || loaded?.name;
+			if( !filename || unique_names.has(filename) ) return [];
+			unique_names.add(filename);
+			return [{
+				name: loaded?.file_name || filename,
+				full_name: filename,
+				file_name: loaded?.file_name || filename,
+				path: `http://localhost:8080/user-page-images/${encodeURIComponent(user_id)}/${encodeURIComponent(filename)}`,
+			}];
+		});
+		set_posts_images(current_images);
+		set_require_images(false);
 	},[posts, user_id]);
 
 	useEffect(()=>{
@@ -677,77 +710,29 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 	};
 
 	useEffect(()=>{
-		set_normal_images([]);
-		if( posts_images.length > 0 ){
-			posts_images.forEach(image => {
-				const raw_img = image.split('/')[3].split('.');
-				const img = raw_img[0] + '.' + raw_img[2];
-				const img_data = {
-					path: image,
-					name: img,
-				}
-				if( img_data ){
-					set_normal_images(normal_images => [...normal_images, img_data]);
-				}
-			})
-		}
+		set_normal_images(posts_images);
 	},[posts_images]);
 
 	useEffect(()=>{
-		set_new_images_array([]);
-		if( normal_images.length > 0 ){
-			const unique_indexes = new Set();
-			let indexes = 0;
-			normal_images && normal_images.length > 0 &&
-				posts.slice().reverse().map((post, index)=>
-					post?.images.map((raw_img, raw_index) =>
-						JSON.parse(raw_img).map((img, img_index) => 
-							{
-								if( !unique_indexes.has(img_index) ){
-									unique_indexes.add(img_index);
-									const img_data = {
-										path: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.path,
-										name: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.name,
-										hide: post?.hide,
-										index: indexes,
-									};
-									indexes++;
-									set_new_images_array(new_images_array => [...new_images_array, img_data]);
-								}
-								else {
-									const img_data = {
-										path: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.path,
-										name: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.name,
-										hide: post?.hide,
-										index: indexes,
-									};
-									indexes++;
-									set_new_images_array(new_images_array => [...new_images_array, img_data]);
-								}
-							}
-						)
-					)
-				)
+		const filename_of = value => typeof value === 'string' ? value.split(/[\\/]/).pop() : '';
+		const next_images = [];
+		for( const post of posts.slice().reverse() ){
+			for( const image of normalize_user_post_images(post?.images) ){
+				const loaded = image?.data?.loaded_file || image?.loaded_file || {};
+				const names = [loaded.name, loaded.file_name, loaded.full_name, loaded.path, loaded.file_path].map(filename_of).filter(Boolean);
+				if( names.length === 0 ) continue;
+				const asset = normal_images.find(item => [item.name, item.file_name, item.full_name, item.path].some(value => names.includes(filename_of(value))));
+				if( !asset ) continue;
+				next_images.push({path: asset.path, name: asset.full_name || asset.name || names[0], hide: post?.hide, index: next_images.length});
+			}
 		}
+		set_new_images_array(next_images);
 	},[posts, normal_images]);
 
 	useEffect(()=>{
-		set_visible_images([])
-		set_hidden_images([]);
-		// для видимых изображений
-		let indexes_for_visible_images = 0;
-		let indexes_for_hidden_images = 0;
-		if( new_images_array.length > 0 ){
-			new_images_array.forEach(image => {
-				if( image?.hide === 'false' ){
-					set_visible_images(visible_images => [...visible_images, {...image, index: indexes_for_visible_images++}]);
-				};
-				if( image?.hide === 'true' ){
-					set_hidden_images(hidden_images => [...hidden_images, {...image, index: indexes_for_hidden_images++}]);
-				}
-			})
-		}
-	},[new_images_array])
+		const is_hidden = value => value === true || value === 'true';
+		set_visible_images(new_images_array.filter(image => !is_hidden(image?.hide)).map((image,index)=>({...image,index})));
+	},[new_images_array]);
 
 	useEffect(()=>{
  		if( visible_images.length > 0 ){
@@ -895,6 +880,16 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 				</div>
 				<div className='col-8'>
 					{/* панель с Приглашениями / Уведомлениями */}
+					{visiable_user_images &&
+						<Arhiv
+							posts={posts}
+							images={normal_images}
+							close={()=>set_visiable_user_images(false)}
+							open_view={()=>set_visiable_view_for_images(true)}
+							set_current_img_for_view={set_current_img_for_view}
+							return_type_arhiv={set_type_arhiv}
+						/>
+					}
 					{visiable_panel_with_invites &&
 						<Invites_Page
 							user_id={user_id}
@@ -945,7 +940,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 									posts_images={posts_images}
 									get_posts={get_posts}
 									user_id={user_id}
-									this_my_page={this_my_page}
+									this_my_page={String(user_id) === String(my_id)}
 									visible_images={visible_images}
 									set_current_img_for_view={set_current_img_for_view}
 									new_images_array={new_images_array}
@@ -1011,8 +1006,8 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 									<div className='blocks'>
 										<div className='block-item'>
 											<div className='row-center'>
-												<div className='user_page_button'>
-													Изображения
+												<div className='user_page_button' onClick={()=>set_visiable_user_images(true)}>
+													Изображения ({visible_images.length})
 												</div>
 											</div>
 										</div>
@@ -1114,10 +1109,10 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 										<div className='block'>
 											<div className='block-item'>
 												<div className='user_page_body_content'>
-													{posts.length > 0 && posts.some(p=>p.hide === 'false')
+													{posts.length > 0 && posts.some(p=>p.hide !== true && p.hide !== 'true')
 														?
 															posts.slice().reverse().map((post, index) =>
-																post.hide === 'false' &&
+																post.hide !== true && post.hide !== 'true' &&
 																	<div key={index} className='blocks'>
 																		<div className='block-item'>
 																			<Content_Block
@@ -1129,13 +1124,13 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 																				visiable={true}
 																				posts_images={posts_images}
 																				id={post?._id}
-																				group_id={user_id}
+																				group_id={undefined}
 																				user_id={user_id}
 																				refresh_posts={get_posts}
 																				date={post?.date}
 																				changed={post?.changed}
 																				hidden={post?.hide}
-																				this_my_page={this_my_page}
+																				this_my_page={String(user_id) === String(my_id)}
 																				this_user_page={true}
 																				set_current_img_for_view={set_current_img_for_view}
 																				set_visiable_view_for_images={()=>{set_visiable_view_for_images(true)}}
@@ -1310,7 +1305,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 													{posts.length > 0
 														?
 															posts.slice().reverse().map((post, index) =>
-																post.hide === 'false' &&
+																post.hide !== true && post.hide !== 'true' &&
 																	<div key={index} className='blocks'>
 																		<div className='block-item'>
 																			<Content_Block
@@ -1322,7 +1317,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 																				visiable={true}
 																				posts_images={posts_images}
 																				id={post?._id}
-																				group_id={user_id}
+																				group_id={undefined}
 																				user_id={user_id}
 																				refresh_posts={get_posts}
 																				date={post?.date}

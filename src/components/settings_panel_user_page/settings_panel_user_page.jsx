@@ -15,7 +15,7 @@ export const Settings_Panel_User_Page = ({this_my_page ,user_page_id, user, post
 				закрыть
 			</div>
 			{posts !== null && posts !== undefined && posts.length > 0 &&
-				posts.filter(p=>p.hide === 'true').length > 0 &&
+				posts.some(post => post.hide === true || post.hide === 'true') &&
 					<div className={cl.settings_panel_user_page_button} onClick={()=>{set_visiable_panel_with_hidden_post(true)}}>
 						скрытые посты
 					</div>

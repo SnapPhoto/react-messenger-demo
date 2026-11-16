@@ -8,7 +8,7 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
   const stream_ref = useRef(null);
   const audio_blob_ref = useRef(null);
   const media_recorder_ref = useRef(null);
-  const [ chunks, set_chunks ] = useState([]);
+  const chunks_ref = useRef([]);
   const [audio_url, set_audio_url] = useState(null);
 
   const [timer, set_timer] = useState(10);
@@ -33,29 +33,56 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
   async function start_record(){
     clear_data_record();
     console.log('START RECORD!')
+    chunks_ref.current = [];
+    set_timer(10);
+    set_is_recording(true);
+    set_recording_voice(true);
     const timerInterval = setInterval(timer_interval,1000);
     timer_ref.current = timerInterval;
     try{
-      set_recording_voice(true);
+      if( !navigator.mediaDevices?.getUserMedia ){
+        throw new Error('Доступ к микрофону требует HTTPS или localhost');
+      }
       const stream = await navigator.mediaDevices.getUserMedia({audio: true});
       stream_ref.current = stream;
       const media_recorder = new MediaRecorder(stream);
-      media_recorder.start();
-
+      media_recorder_ref.current = media_recorder;
+      chunks_ref.current = [];
       media_recorder.ondataavailable = (e) => {
         if( e.data.size > 0 ){
-          set_chunks(chunks => [...chunks, e.data]);
+          chunks_ref.current.push(e.data);
           console.log('[chunks] Добавлено ', e.data.size ,' байт');
         }
         else{
           console.log('e.data.size <= 0');
-          set_recording_voice(false);
-          set_timer(10);
         }
-      }
+      };
+      media_recorder.onstop = () => {
+        const recorded_chunks = chunks_ref.current;
+        chunks_ref.current = [];
+        if( recorded_chunks.length > 0 ){
+          const audio_blob = new Blob(recorded_chunks, {type: media_recorder.mimeType || 'audio/webm'});
+          if( audio_blob.size > 0 ){
+            const audio_url = URL.createObjectURL(audio_blob);
+            audio_blob_ref.current = audio_blob;
+            audio_url_ref.current = audio_url;
+            set_audio_url(audio_url);
+            set_voice_recorded(audio_blob);
+          }
+        }
+        stream.getTracks().forEach(track => track.stop());
+        stream_ref.current = null;
+        media_recorder_ref.current = null;
+        set_recording_voice(false);
+        set_is_recording(false);
+        set_timer(10);
+      };
+      media_recorder.start();
     }
     catch(err){
       console.error('Ошибка записи аудио: ', err);
+      clearInterval(timer_ref.current);
+      timer_ref.current = null;
       set_recording_voice(false);
       clear_data_record();
     }
@@ -64,37 +91,17 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
     })
   };
 
-  useEffect(()=>{
-    if( chunks.length > 0 ){
-      const audio_blob = new Blob(chunks, {type: 'audio/webm'});
-      if( audio_blob ){
-        const audio_url = URL.createObjectURL(audio_blob);
-        if( audio_url ){
-          audio_url_ref.current = audio_url;
-          set_audio_url(audio_url);
-          // send_audio_to_server(audio_blob);
-          if( !voice_recorded ){
-            set_voice_recorded(audio_blob);
-          }
-        }
-        else{
-          console.log('[X] audio_url пуст')
-          set_recording_voice(false);
-        }
-      }
-    }
-  },[chunks]);
-
   async function stop_record(){
     console.log('STOP RECORD!')
     clearInterval(timer_ref.current);
     try{
-      if( media_recorder_ref.current !== null ){
+      if( media_recorder_ref.current?.state === 'recording' ){
         media_recorder_ref.current.stop();
-      };
-      if( stream_ref.current !== null ){
+      } else if( stream_ref.current !== null ){
         stream_ref.current.getTracks().forEach(track => track.stop());
+        stream_ref.current = null;
         set_recording_voice(false);
+        set_is_recording(false);
         set_timer(10);
       };
     }
@@ -113,9 +120,12 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
       set_timer(10);
     };
     stream_ref.current = null;
+    if( audio_url_ref.current ) URL.revokeObjectURL(audio_url_ref.current);
     audio_url_ref.current = null;
+    audio_blob_ref.current = null;
+    chunks_ref.current = [];
     media_recorder_ref.current = null;
-    set_chunks([]);
+    set_is_recording(false);
     set_audio_url(null);
     set_recording_voice(false);
     set_voice_recorded(null);
@@ -173,7 +183,7 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
           {!is_recording
           ?
             !audio_url &&
-            <button className={cl.button} onClick={()=>{set_is_recording(true); start_record()}}>Записать</button>
+            <button className={cl.button} onClick={start_record}>Записать</button>
           :
             !audio_url &&
             <button className={cl.button} onClick={()=>{set_is_recording(false); stop_record()}}>Остановить</button>

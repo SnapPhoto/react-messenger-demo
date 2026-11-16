@@ -24,19 +24,19 @@ export const Content_Panel_Buttons = ({options, visiable, close, this_remove, th
 	},[form])
 	return (
 		<div ref={form} className={!this_my_page && this_user_page ? cl.form_deactive : cl.form}>
-			{((hidden === 'false' && this_my_page) || (for_current_mails && this_my_message)) &&
+			{((this_user_page && this_my_page) || ((hidden === 'false' || hidden === false || hidden === null || hidden === undefined) && this_my_page && !this_user_page) || (for_current_mails && this_my_message)) &&
 				<div className={cl.option} onClick={()=>{this_change(); close()}}>
 					изменить
 				</div>
 			}
-			{hidden === 'false' && !this_user_page &&
+			{(hidden === 'false' || hidden === false || hidden === null || hidden === undefined) && !this_user_page &&
 				<div className={cl.option} onClick={()=>{add_to_favourite(group_id ? 'group_content' : mail_id ? 'mail' : 'error'); close()}}>
 					добавить в избранное
 				</div>
 			}
-			{this_my_page &&
-				<div className={cl.option} onClick={()=>{this_hide()}}>
-					{hidden === 'true'
+			{(this_my_page || ((this_group || this_user_page) && (hidden === 'true' || hidden === true))) &&
+				<div className={cl.option} onClick={()=>{this_hide(); close(false)}}>
+					{hidden === 'true' || hidden === true
 					?
 						'вернуть'
 					:

@@ -17,11 +17,15 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 	const [ sended_code_on_email, set_sended_code_on_email ] = useState(false);
 	const [ sucsess_code, set_sucsess_code ] = useState(false);
 	const [ notifications, set_notifications ] = useState([]);
+	const registration_in_progress = useRef(false);
+	const code_check_in_progress = useRef(false);
 
 	const navigate = useNavigate();
 
 	async function register_account(e){
-		// e.preventDefault();
+		e?.preventDefault();
+		if( registration_in_progress.current ) return;
+		registration_in_progress.current = true;
 		try{
 			set_errors([]);
 			const new_errors = [];
@@ -70,6 +74,9 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 		catch(err){
 			console.error('Ошибка регистрации: ', err);
 		}
+		finally{
+			registration_in_progress.current = false;
+		}
 	};
 
 	useEffect(()=>{
@@ -101,6 +108,8 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 	};
 
 	async function check_verify_code(){
+		if( code_check_in_progress.current || registration_in_progress.current ) return;
+		code_check_in_progress.current = true;
 		try{
 			const response = await axios.post('http://localhost:8080/get_verify_code', {
 				email: email,
@@ -111,7 +120,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 			};
 			if( response?.data?.code ){
 				console.log('Код верный!');
-				register_account();
+				await register_account();
 			}
 			else{
 				set_entered_verify_code('');
@@ -119,7 +128,10 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 			}
 		}
 		catch(err){
-			return console.error('Ошибка получения проверочного кода: ', err);
+			console.error('Ошибка получения проверочного кода: ', err);
+		}
+		finally{
+			code_check_in_progress.current = false;
 		}
 	};
 

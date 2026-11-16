@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import {createPortal} from 'react-dom';
 import cl from './content.module.css';
 import $ from 'jquery';
 import Content_Panel_Buttons from '../../components/content_panel_buttons/content_panel_buttons';
@@ -6,7 +7,25 @@ import axios from 'axios';
 import Change_Content_Panel from '../../components/change_content/change_content.jsx';
 // import FormChange_Content from '../../components/change_content/change_content.jsx';
 
-export const Content_Block = ({type, role, img, data, id, text, visiable, posts_images, curr_user, group_id, refresh_posts, date, changed, user_id, hidden, this_my_page, this_my_group, set_visiable_view_for_images, set_current_img_for_view, new_images_array, my_id, other_id, for_current_mails, images_from_max, select_img_for_view, normal_images_from_current_mails, data_images_from_max, mail_id, this_my_message, this_group_id, content_id_for_current_mails, func_scroll_to_it_after_changed, voice, post_for_main, normal_images_for_main_from_group, normal_images_for_main_from_user_page, this_user_page, this_group, ws_message_type, ws_ref, unique_token, for_user_page, mail, my_data_mail}) => {
+function normalizePostImageGroups(images){
+	let value = images;
+	if( typeof value === 'string' ){
+		try { value = JSON.parse(value); } catch { return []; }
+	}
+	if( !Array.isArray(value) ) return [];
+	const result = [];
+	for( const entry of value ){
+		let parsed = entry;
+		if( typeof parsed === 'string' ){
+			try { parsed = JSON.parse(parsed); } catch { continue; }
+		}
+		if( Array.isArray(parsed) ) result.push(...parsed);
+		else if( parsed && typeof parsed === 'object' ) result.push(parsed);
+	}
+	return result.length ? [result] : [];
+}
+
+export const Content_Block = ({type, role, img, data, id, text, visiable, posts_images, curr_user, group_id, refresh_posts, date, changed, user_id, hidden, this_my_page, this_my_group, set_visiable_view_for_images, set_current_img_for_view, new_images_array, visible_images, hidden_images, my_id, other_id, for_current_mails, images_from_max, select_img_for_view, normal_images_from_current_mails, data_images_from_max, mail_id, this_my_message, this_group_id, content_id_for_current_mails, func_scroll_to_it_after_changed, voice, post_for_main, normal_images_for_main_from_group, normal_images_for_main_from_user_page, this_user_page, this_group, ws_message_type, ws_ref, unique_token, for_user_page, mail, my_data_mail}) => {
 	// types: [img],[text],[img_and_text]
 	// this_user_page - показатель, что это страница; [true/false]
 	// my_id - мой id;
@@ -26,6 +45,46 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	const component_ref = useRef(null);
 
 	const [this_my_mail, set_this_my_mail] = useState(true);
+
+	function find_post_image(loaded_file){
+		const basename = value => typeof value === 'string' ? value.split(/[\\/]/).pop() : '';
+		const normalize_name = value => basename(value)?.replace(/["']/g, '');
+		const candidates = [loaded_file?.name, loaded_file?.file_name, loaded_file?.full_name, loaded_file?.path, loaded_file?.file_path]
+			.map(normalize_name).filter(Boolean);
+		const matched_image = current_images.find(image =>
+			[image?.name, image?.full_name, image?.file_name, image?.path]
+				.map(normalize_name).filter(Boolean).some(asset_name => candidates.some(name => asset_name === name || asset_name.endsWith(`_${name}`)))
+		);
+		if( matched_image || !for_current_mails || candidates.length === 0 ) return matched_image;
+		const filename = [loaded_file?.name, loaded_file?.file_name, loaded_file?.path, loaded_file?.file_path, loaded_file?.full_name]
+			.map(normalize_name).find(name => /\.(jpg|jpeg|png|webp|gif)$/i.test(name));
+		if( !filename ) return undefined;
+		return {
+			name: filename,
+			full_name: loaded_file?.full_name || filename,
+			path: `http://${window.location.hostname}:8080/images/max/${encodeURIComponent(filename)}`,
+		};
+	}
+
+	function get_current_mail_image_src(loaded_file){
+		return find_post_image(loaded_file)?.path || '';
+	}
+
+	function open_post_image(loaded_file, fallback_index){
+		const asset = find_post_image(loaded_file);
+		const full_name = loaded_file?.full_name || asset?.full_name || asset?.name;
+		const is_hidden = hidden === true || hidden === 'true';
+		const gallery = is_hidden ? hidden_images : visible_images;
+		const gallery_image = (Array.isArray(gallery) ? gallery : []).find(image =>
+			image?.name === full_name || image?.full_name === full_name
+		);
+		set_current_img_for_view({
+			img: asset?.path,
+			name: full_name,
+			img_index: gallery_image?.index ?? fallback_index,
+		});
+		set_visiable_view_for_images(true);
+	}
 
 	useEffect(()=>{
 		if( mail?._id ){
@@ -106,23 +165,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	useEffect(()=>{
 		if( img !== null && img !== undefined ){
 			if( !for_current_mails ){
-				if( img.length > 0 ){
-					const normal_images = [];
-					img.map(i => {
-						try{
-							const parse_i = JSON.parse(i);
-							if( parse_i ){
-								normal_images.push(parse_i)
-							}
-						}
-						catch(err){
-							console.error(`Ошибка. [${i}] не JSON`)
-						}
-					});
-					if( normal_images.length > 0 ){
-						set_images(normal_images);
-					}
-				}
+				set_images(normalizePostImageGroups(img));
 			}
 			else{
 				function check_JSON(img){
@@ -164,24 +207,20 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 	},[img])
 
 	useEffect(()=>{
-		if( posts_images ){
-			// console.log('posts-images = ',posts_images)
-			// return;
-			posts_images.map(i => {
-				const raw_data = i.split('_-_')[1];
-				const last_dot_index = raw_data.lastIndexOf('.');
-				const prev_dot_index = raw_data.lastIndexOf('.', last_dot_index - 1);
-				const name = raw_data.slice(0, prev_dot_index) + raw_data.slice(last_dot_index);
-				const raw_full_name = i.split('/')[3].split('.');
-				const full_name = raw_full_name[0] + '.' + raw_full_name[2];
-
-				const image_data = {
-					name: name,
-					full_name: full_name,
-					path: i,
-				};
-				set_current_images(current_images => [...current_images, image_data]);
-			})
+		if( Array.isArray(posts_images) ){
+			const image_data = posts_images.map(image => {
+				if( image && typeof image === 'object' ) return image;
+				if( typeof image !== 'string' ) return null;
+				const filename = image.split('/').pop();
+				const raw_data = filename?.split('_-_')[1] || filename;
+				const last_dot_index = raw_data?.lastIndexOf('.') ?? -1;
+				const prev_dot_index = raw_data?.lastIndexOf('.', last_dot_index - 1) ?? -1;
+				const legacy_name = last_dot_index >= 0 && prev_dot_index >= 0
+					? raw_data.slice(0, prev_dot_index) + raw_data.slice(last_dot_index)
+					: filename;
+				return {name: legacy_name, full_name: filename, path: image};
+			}).filter(Boolean);
+			set_current_images(image_data);
 		}
 	},[posts_images])
 
@@ -443,12 +482,15 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 			if( response?.data?.message ){
 				console.log(response?.data?.message);
 			};
-			if( response?.data?.refresh ){
-				refresh_posts();
+			if( response?.data?.refresh === true ){
+				await refresh_posts();
+			}
+			else if( response?.data?.error ){
+				console.error('Сервер не изменил видимость поста: ', response.data.error);
 			}
 		}
 		catch(err){
-			console.error('Ошибка скрытия контента: ', err);
+			console.error('Ошибка скрытия контента: ', err.response?.data || err);
 		}
 	};
 
@@ -471,7 +513,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 				images.forEach((img, img_index) => {
 					if( img.length > 0 ){
 						img.forEach((i, index) => {
-							this_images.push(current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path);
+							this_images.push(find_post_image(i?.data?.loaded_file)?.path);
 						})
 					}
 				})
@@ -636,36 +678,31 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 			<div className={cl.mail_status}>
 				{mail && mail.status === 'uncheck' ? <div className={cl.mail_status_uncheck}></div> : <div className={cl.mail_status_check}></div>}
 			</div>	
-			{form_change_visiable
-			&&
-				<div className={cl.change_panel}>
-					<div className={cl.change_panel_form}>
-						<Change_Content_Panel
-							close={()=>{set_form_change_visiable(false)}}
-							type={type}
-							group_data={data}
-							exist_text={text}
-							curr_user={curr_user}
-							images={images}
-							images_from_max={images_from_max}
-							id={group_id }
-							content_id={id}
-							content_id_for_current_mails={content_id_for_current_mails}
-							get_posts={refresh_posts}
-							old_text={text || ''}
-							user_id={user_id}
-							for_current_mails={for_current_mails}
-							my_id={my_id}
-							other_id={other_id}
-							scroll_to_it_after_changed={func_scroll_to_it_after_changed}
-							remove_content_for_current_mail={remove_content_for_current_mail}
-							ws_message_type={ws_message_type}
-							ws_ref={ws_ref}
-						>	
-						</Change_Content_Panel>
-					</div>
-				</div>
-			}
+			{form_change_visiable && createPortal(
+				<Change_Content_Panel
+					close={()=>{set_form_change_visiable(false)}}
+					type={type}
+					group_data={data}
+					exist_text={text}
+					curr_user={curr_user}
+					images={images}
+					images_from_max={images_from_max}
+					id={user_id || group_id}
+					content_id={id}
+					content_id_for_current_mails={content_id_for_current_mails}
+					get_posts={refresh_posts}
+					old_text={text || ''}
+					user_id={user_id}
+					for_current_mails={for_current_mails}
+					my_id={my_id}
+					other_id={other_id}
+					scroll_to_it_after_changed={func_scroll_to_it_after_changed}
+					remove_content_for_current_mail={remove_content_for_current_mail}
+					ws_message_type={ws_message_type}
+					ws_ref={ws_ref}
+				/>,
+				document.body
+			)}
 			<div className={
 				type === 'img'
 				?
@@ -724,31 +761,19 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 												(index >= 0 && index < 2)
 												?	
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path}/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path}/>
 													</div>
 												:
 												(index >= 2 && index < 4)
 												?
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path}/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path}/>
 													</div>
 												:
 												(index >= 4 && index < 6)
 												&&
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path}/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path}/>
 													</div>
 											)}
 										</div>
@@ -815,31 +840,19 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 												(index >= 0 && index < 2)
 												?	
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name).full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path} alt="картинка"/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path} alt="картинка"/>
 													</div>
 												:
 												(index >= 2 && index < 4)
 												?
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name).full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path} alt="картинка"/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path} alt="картинка"/>
 													</div>
 												:
 												(index >= 4 && index < 6)
 												&&
 													<div key={i?.data?.loaded_file?.full_name} className={cl.img}>
-														<img onClick={()=>{set_current_img_for_view({
-															img: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path,
-															name: current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.full_name,
-															img_index: new_images_array.find(image => image?.name === i?.data?.loaded_file?.full_name)?.index,
-														}); set_visiable_view_for_images(true)}} src={current_images.find(c => c?.name === i?.data?.loaded_file?.file_name)?.path} alt="картинка"/>
+														<img onClick={()=>open_post_image(i?.data?.loaded_file, index)} src={find_post_image(i?.data?.loaded_file)?.path} alt="картинка"/>
 													</div>
 											)}
 										</div>
@@ -854,7 +867,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 				}
 
 				{/* ДЛЯ СООБЩЕНИЙ */}
-				{type === 'img' && for_current_mails && normal_images.length > 0 && !post_for_main && !for_user_page &&
+				{type === 'img' && for_current_mails && !post_for_main && !for_user_page &&
 					<div className={cl.forma}>
 						<div className={cl.img_container_for_current_mails}>
 							{images.length > 0 &&
@@ -896,7 +909,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 											(index >= 0 && index < 2)
 											?	
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 													{/* 
 														i = изображение, 
 														index = индекс изображения, 
@@ -908,13 +921,13 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 											(index >= 2 && index < 4)
 											?
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 												</div>
 											:
 											(index >= 4 && index < 6)
 											&&
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 												</div>
 										)}
 									</div>
@@ -966,19 +979,19 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 											(index >= 0 && index < 2)
 											?	
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 												</div>
 											:
 											(index >= 2 && index < 4)
 											?
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}} src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 												</div>
 											:
 											(index >= 4 && index < 6)
 											&&
 												<div key={i?.data?.loaded_file?.name} className={cl.img}>
-													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}}  src={data_images_from_max.find(data => data?.name === i?.data?.loaded_file?.name)?.path}/>
+													<img loading="lazy" width={400} height={400} onClick={()=>{select_img_for_view(i, index, images, images_from_max); set_visiable_view_for_images(true)}}  src={get_current_mail_image_src(i?.data?.loaded_file)}/>
 												</div>
 										)}
 									</div>
@@ -1214,7 +1227,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						</div>
 					</div>
 				: 	
-					(group_id || this_my_message) && !voice && (this_user_page || this_group || this_my_message || hidden) &&
+					(group_id || this_user_page || this_my_message) && !voice && (this_user_page || this_group || this_my_message || hidden) &&
 					<div className={cl.option_false} onClick={()=>{set_options(true)}}>
 						...
 					</div>

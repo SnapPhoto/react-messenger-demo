@@ -9,30 +9,29 @@ import axios from 'axios';
 export const Login = ({set_token, auto_login, user_reg_data, set_user_reg_data, set_my_id}) => {
 	const [pass, set_pass] = useState('');
 	const [email, set_email] = useState('');
+	const auto_login_started = useRef(false);
 	const navigate = useNavigate();
 
 	useEffect(()=>{
-		if( user_reg_data && auto_login ){
-			const auto_pass = user_reg_data.pass;
-			const auto_email = user_reg_data.email;
-			if( auto_email && auto_pass ){
-				set_pass(auto_pass);
-				set_email(auto_email)
-				const await_auto_login = document.querySelector('[auto_login]');
-				if( await_auto_login ){
-					await_auto_login.click();
-				}
-			};
+		const auto_pass = user_reg_data?.pass;
+		const auto_email = user_reg_data?.email;
+		if( auto_login && auto_email && auto_pass && !auto_login_started.current ){
+			auto_login_started.current = true;
+			set_pass(auto_pass);
+			set_email(auto_email);
+			log_in(null, {pass: auto_pass, email: auto_email});
 		}
-	},[user_reg_data]);
+	},[user_reg_data, auto_login]);
 
-	async function log_in(e){
-		e.preventDefault();
+	async function log_in(e, credentials = {}){
+		e?.preventDefault();
+		const login_pass = credentials.pass ?? pass;
+		const login_email = credentials.email ?? email;
 		try{
 			const res = await axios.post('http://localhost:8080/account/login', {}, {
 				headers: {
-					pass,
-					email,
+					pass: login_pass,
+					email: login_email,
 				}
 			});
 			if( res.data?.login ){

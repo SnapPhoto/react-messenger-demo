@@ -99,6 +99,9 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 				set_current_index(current_img?.img_index);
 			}
 		};
+		if( type_view === 'current_mails' ){
+			set_current_index(current_img?.img_index ?? current_img?.index ?? data_for_view_for_current_mails?.current_img_index ?? 0);
+		}
 		if( type_view === 'main' ){
 			// console.log('[main] img = ', current_img);
 			// console.log('[main]  visible_img = ', data_for_view_for_current_mails?.normal_images_for_main_from_group);
@@ -234,46 +237,8 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 			}
 		};
 		if( type_view === 'current_mails' ){
-			if ( type_arhiv === 'bottom' ){
-				if( visible_images.length > 0 ){
-					if( current_index < visible_images.length-1 ){
-						// console.log('images.length = ', images.length);
-						// console.log('current_index = ', current_index);
-						set_current_index(current_index+1)
-						console.log('current_index = ', current_index)
-					}
-					else {
-						set_current_index(0);
-						console.log('current_index = ', current_index)
-					}
-				}
-			}
-			else if( type_arhiv === 'top' ){
-				if( visible_images.length > 0 ){
-					if( current_index > 0 ){
-						set_current_index(current_index-1)
-						console.log('current_index = ', current_index)
-					}
-					else{
-						set_current_index(visible_images.length-1)
-						console.log('current_index = ', current_index)
-					}
-				}
-			}
-			else if( !type_arhiv ){
-				if( visible_images.length > 0 ){
-					if( current_index < visible_images.length-1 ){
-						// console.log('images.length = ', images.length);
-						// console.log('current_index = ', current_index);
-						set_current_index(current_index+1)
-						console.log('current_index = ', current_index)
-					}
-					else {
-						set_current_index(0);
-						console.log('current_index = ', current_index)
-					}
-				}
-			}
+			const gallery_length = normal_images_from_current_mails?.length || data_for_view_for_current_mails?.images?.length || 0;
+			if( gallery_length > 0 ) set_current_index(index => (index + 1) % gallery_length);
 		};
 		if( type_view === 'main'){
 			if ( type_arhiv === 'bottom' ){
@@ -429,6 +394,10 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 			}
 		};
 		if( type_view === 'current_mails' ){
+			const gallery_length = normal_images_from_current_mails?.length || data_for_view_for_current_mails?.images?.length || 0;
+			if( gallery_length > 0 ) set_current_index(index => (index - 1 + gallery_length) % gallery_length);
+		};
+		if( type_view === 'main' && false ){
 			if( type_arhiv === 'bottom' ){
 				if( visible_images.length > 0 ){
 					if( current_index > 0 ){
@@ -595,24 +564,15 @@ export const View_For_Images = ({current_index_img, images, visible_images, hidd
 				:
 				type_view === 'current_mails'
 				?
-					data_for_view_for_current_mails &&
-						normal_images_from_current_mails !== null && normal_images_from_current_mails.length > 0 
-							?
-								//если более 1 картинки
-								normal_images_from_current_mails.map((image, index) =>
-									index === current_index &&
-									<div className={cl.img_box} key={index}>
-										{/* {console.log('index = ', index)} */}
-										<img src={image.path} alt="картинка"/>
-									</div>
-								)
-							: 	
-								//если 1 картинка 
-								data_for_view_for_current_mails?.current_img &&
-								<div className={cl.img_box} style={{color: 'white'}}>
-									{/* {console.log('current_index = ', data_for_view_for_current_mails?.current_index)} */}
-									<img src={data_for_view_for_current_mails.find(data => data?.images.name === data?.current_img)?.images?.path} alt="картинка"/>
-								</div>
+					Array.isArray(normal_images_from_current_mails) && normal_images_from_current_mails.length > 0
+						? normal_images_from_current_mails[current_index]?.path &&
+							<div className={cl.img_box}>
+								<img src={normal_images_from_current_mails[current_index].path} alt="картинка"/>
+							</div>
+						: data_for_view_for_current_mails?.current_img?.path &&
+							<div className={cl.img_box}>
+								<img src={data_for_view_for_current_mails.current_img.path} alt="картинка"/>
+							</div>
 				:
 				type_view === 'main' &&
 					data_for_view_for_current_mails &&

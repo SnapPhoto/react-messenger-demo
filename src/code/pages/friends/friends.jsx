@@ -167,41 +167,33 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 		if( !token ){
 			return;
 		};
+		set_is_loading_friends(true);
 		try{
-			set_is_loading_friends(true);
 			const response = await axios.post('http://localhost:8080/main/get_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
 			});
-			if( response.data?.friends.length > 0 ){
-				set_friends([])
-				set_default_friends([])
-				const raw_friends = response.data?.friends;
-				raw_friends.forEach((friend, index)=>{
-					if( !unique_friends.has(friend?.id) ){
-						unique_friends.add(friend?.id)
-						let p = {
-							name: friend.name,
-							email: friend.email,
-							last_activity: friend.last_activity,
-							id: friend.id,
-							avatar: friend.profil_avatar,
-							t_number : friend.t_number || 'телефон не указан',
-						};
-						set_friends(friend => [...friend, p]);
-						set_default_friends(friend => [...friend, p]);
-						set_is_loading_friends(false);
-					}
-				});
-			}
-			else{
-				set_is_loading_friends(false)
-				set_friends([])
-			}
+			const raw_friends = Array.isArray(response.data?.friends) ? response.data.friends : [];
+			const mapped_friends = raw_friends.map(friend => ({
+				name: friend.name,
+				email: friend.email,
+				last_activity: friend.last_activity,
+				id: friend.id,
+				avatar: friend.profil_avatar,
+				t_number: friend.t_number || 'телефон не указан',
+			}));
+			const unique_mapped_friends = Array.from(
+				new Map(mapped_friends.map(friend => [String(friend.id), friend])).values()
+			);
+			set_friends(unique_mapped_friends);
+			set_default_friends(unique_mapped_friends);
 		}
 		catch(err){
-			console.error('Ошибка: ', err)
+			console.error('Ошибка загрузки подтверждённых друзей: ', err);
+		}
+		finally{
+			set_is_loading_friends(false);
 		}
 	};
 

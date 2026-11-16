@@ -44,7 +44,8 @@ function App(){
   useEffect(()=>{
     if( !token ){ return; }
     try{
-      const ws = new WebSocket('ws://localhost:8080/ws');
+      const ws_protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${ws_protocol}//${window.location.hostname}:8080/ws`);
       if( ws ){
         if( ws_ref.current === null ){
           ws_ref.current = ws;

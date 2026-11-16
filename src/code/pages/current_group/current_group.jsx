@@ -26,6 +26,33 @@ import Panel_With_Add_Password from '../../../components/panel_with_add_password
 import Panel_With_Change_Password from '../../../components/panel_with_change_password/panel_with_change_password.jsx';
 import Notification_Bar from '../../../components/notification_bar/notification_bar.jsx';
 
+function normalize_post_image_groups(images){
+	let value = images;
+	if( typeof value === 'string' ){
+		try { value = JSON.parse(value); } catch { return []; }
+	}
+	if( !Array.isArray(value) ) return [];
+	const result = [];
+	for( const entry of value ){
+		let parsed = entry;
+		if( typeof parsed === 'string' ){
+			try { parsed = JSON.parse(parsed); } catch { continue; }
+		}
+		const group = Array.isArray(parsed) ? parsed : [parsed];
+		for( const item of group ){
+			if( typeof item === 'string' ){
+				try {
+					const decoded = JSON.parse(item);
+					result.push(...(Array.isArray(decoded) ? decoded : [decoded]));
+				}
+				catch { continue; }
+			}
+			else if( item && typeof item === 'object' ) result.push(item);
+		}
+	}
+	return result.length ? [result] : [];
+}
+
 export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_visiable_panel_with_invites, visiable_panel_with_push_user_in_group, set_visiable_panel_with_push_user_in_group, ws_message_type, ws_ref, my_name}) => {
 	
 	const [id, set_id] = useState(null);
@@ -208,20 +235,13 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 	},[group_data])
 
 	useEffect(()=>{
-		set_normal_images([]);
-		if( posts_images.length > 0 ){
-			posts_images.forEach(image => {
-				const raw_img = image.split('/')[3].split('.');
-				const img = raw_img[0] + '.' + raw_img[2];
-				const img_data = {
-					path: image,
-					name: img,
-				}
-				if( img_data ){
-					set_normal_images(normal_images => [...normal_images, img_data]);
-				}
-			})
-		}
+		const image_data = posts_images.map(image => {
+			if( image && typeof image === 'object' ) return image;
+			if( typeof image !== 'string' ) return null;
+			const filename = image.split('/').pop();
+			return {path: image, name: filename, full_name: filename};
+		}).filter(Boolean);
+		set_normal_images(image_data);
 	},[posts_images]);
 
 	useEffect(()=>{
@@ -733,15 +753,16 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 		};
 		try{
 			if( require_images ){
-				const context = require.context('../../../../src/images/groups_images/', true, /\.(jpg)$/);
+				const context = require.context('../../../../src/images/groups_images/', true, /\.(jpg|jpeg|png|webp)$/i);
 				const current_folder = context.keys().filter(folder => folder.includes(`/${id}/`));
-				if( current_folder ){
-					const current_images = current_folder.map(img => context(img, false, /\.(jpg)$/));
-					if( current_images.length > 0 ){
-						set_posts_images(current_images);
-						set_require_images(false);
-					}
-				}
+				const current_images = current_folder.map(key => {
+					const filename = key.split('/').pop();
+					const hash_match = filename.match(/^(.*)_([0-9a-f]{8,})\.(jpg|jpeg|png|webp)$/i);
+					const name = hash_match ? `${hash_match[1]}.${hash_match[3]}` : filename;
+					return {path: context(key), name, full_name: filename};
+				});
+				set_posts_images(current_images);
+				set_require_images(false);
 			}
 		}
 		catch(err){
@@ -1007,66 +1028,29 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 	// },[id])
 
 	useEffect(()=>{
-		set_new_images_array([])
-		if( normal_images.length > 0 ){
-			const unique_indexes = new Set();
-			let indexes = 0;
-			normal_images && normal_images.length > 0 &&
-				posts.slice().reverse().map((post, index)=>
-					post?.images.map((raw_img, raw_index) =>
-						JSON.parse(raw_img).map((img, img_index) => 
-							{
-								if( !unique_indexes.has(img_index) ){
-									unique_indexes.add(img_index);
-									const img_data = {
-										path: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.path,
-										name: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.name,
-										hide: post?.hide,
-										index: indexes,
-									};
-									indexes++;
-									set_new_images_array(new_images_array => [...new_images_array, img_data]);
-								}
-								else {
-									const img_data = {
-										path: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.path,
-										name: normal_images.find(image => image.name.toString() === img.data?.loaded_file?.full_name.toString())?.name,
-										hide: post?.hide,
-										index: indexes,
-									};
-									indexes++;
-									set_new_images_array(new_images_array => [...new_images_array, img_data]);
-								}
-							}
-						)
-					)
-				)
+		const next_images = [];
+		const filename_of = (value) => typeof value === 'string' ? value.split(/[\\/]/).pop() : '';
+		for( const post of posts.slice().reverse() ){
+			for( const img of normalize_post_image_groups(post?.images).flat() ){
+				const loaded = img?.data?.loaded_file || img?.loaded_file || {};
+				const names = [loaded.name, loaded.file_name, loaded.full_name, loaded.path]
+					.map(filename_of).filter(Boolean);
+				if( names.length === 0 ) continue;
+				const asset = normal_images.find(image =>
+					[image.name, image.full_name, image.file_name, image.path]
+						.some(asset_name => names.includes(filename_of(asset_name)))
+				);
+				if( asset ) next_images.push({path: asset.path, name: asset.full_name || asset.name || names[0], hide: post?.hide, index: next_images.length});
+			}
 		}
+		set_new_images_array(next_images);
 	},[posts, normal_images]);
 
 	useEffect(()=>{
-		if( new_images_array.length > 0 ){
-			console.log('_____] new_images_array = ', new_images_array)
-		}
-	},[new_images_array])
-
-	useEffect(()=>{
-		set_visible_images([])
-		set_hidden_images([]);
-		// для видимых изображений
-		let indexes_for_visible_images = 0;
-		let indexes_for_hidden_images = 0;
-		if( new_images_array.length > 0 ){
-			new_images_array.forEach(image => {
-				if( image?.hide === 'false' ){
-					set_visible_images(visible_images => [...visible_images, {...image, index: indexes_for_visible_images++}]);
-				};
-				if( image?.hide === 'true' ){
-					set_hidden_images(hidden_images => [...hidden_images, {...image, index: indexes_for_hidden_images++}]);
-				}
-			})
-		}
-	},[new_images_array])
+		const is_hidden = value => value === true || value === 'true';
+		set_visible_images(new_images_array.filter(image => !is_hidden(image?.hide)).map((image,index)=>({...image,index})));
+		set_hidden_images(new_images_array.filter(image => is_hidden(image?.hide)).map((image,index)=>({...image,index})));
+	},[new_images_array]);
 
 	function refresh_data_group(){
 		set_visiable_panel_change_password(false);

@@ -21,7 +21,7 @@ export const Panel_With_Push_User_In_Group = ({close, group_id, my_id, ws_ref}) 
 			set_friends([]); // обнуление
 			set_default_friends([]); // обнуление
 			set_loading_friends(true);
-			const response = await axios.post('http://localhost:8080/main/get_friends', {
+			const response = await axios.post('/main/get_friends', {
 				group_id: group_id
 			}, {
 				headers: {
@@ -103,7 +103,7 @@ export const Panel_With_Push_User_In_Group = ({close, group_id, my_id, ws_ref}) 
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/send_invite_in_group', {
+			const response = await axios.post('/send_invite_in_group', {
 				for_user: friend.id,
 				from_user_id: my_id,
 				invite_data: {
@@ -148,7 +148,7 @@ export const Panel_With_Push_User_In_Group = ({close, group_id, my_id, ws_ref}) 
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_invites', {
+			const response = await axios.post('/get_invites', {
 				group_id: group_id,
 			}, {
 				headers: {
@@ -171,7 +171,7 @@ export const Panel_With_Push_User_In_Group = ({close, group_id, my_id, ws_ref}) 
 
 // 	async function remove_all_invites(){
 // 		try{
-// 			const response = await axios.post('http://localhost:8080/remove_all_invites', {}, {
+// 			const response = await axios.post('/remove_all_invites', {}, {
 // 
 // 			});
 // 			if( response ){

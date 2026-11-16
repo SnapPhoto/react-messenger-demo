@@ -91,7 +91,7 @@ export const Form = ({set_file, pick_file, set_visiable, set_avatar, loading, ol
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_group_avatar', {
+			const response = await axios.post('/remove_group_avatar', {
 				group_id: group_id,
 			}, {
 				headers: {

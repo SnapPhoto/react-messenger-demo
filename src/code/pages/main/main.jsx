@@ -63,7 +63,7 @@ export const Main = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_user_data",
+        "/get_user_data",
         {},
         {
           headers: {
@@ -87,7 +87,7 @@ export const Main = ({
 
   // 	async function clear_server(){
   // 		try{
-  // 			const response = await axios.post('http://localhost:8080/clear_server', {}, {});
+  // 			const response = await axios.post('/clear_server', {}, {});
   // 		}
   // 		catch(err){
   // 			console.error('Ошибка очистки сервера: ', err);
@@ -213,7 +213,7 @@ export const Main = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_posts_for_main_page",
+        "/get_posts_for_main_page",
         {},
         {
           headers: {
@@ -261,7 +261,7 @@ export const Main = ({
   async function clear_posts() {
     try {
       const response = await axios.post(
-        "http://localhost:8080/clear_posts_for_main_page",
+        "/clear_posts_for_main_page",
         {},
         {},
       );

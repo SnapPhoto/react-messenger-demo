@@ -17,7 +17,7 @@ export const account_panel = ({account_panel_active, set_account_panel_active, m
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_account_profil_avatar', {}, {
+			const response = await axios.post('/remove_account_profil_avatar', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}

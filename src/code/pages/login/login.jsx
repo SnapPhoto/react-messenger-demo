@@ -28,7 +28,7 @@ export const Login = ({set_token, auto_login, user_reg_data, set_user_reg_data, 
 		const login_pass = credentials.pass ?? pass;
 		const login_email = credentials.email ?? email;
 		try{
-			const res = await axios.post('http://localhost:8080/account/login', {}, {
+			const res = await axios.post('/account/login', {}, {
 				headers: {
 					pass: login_pass,
 					email: login_email,

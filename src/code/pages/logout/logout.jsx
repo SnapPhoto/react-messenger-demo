@@ -15,7 +15,7 @@ export const Logout = ({token, set_token, set_account_panel_active}) => {
 			}
 			// код выхода
 			try{
-				const response = await axios.post("http://localhost:8080/account/logout", {}, {
+				const response = await axios.post("/account/logout", {}, {
 					headers: {
 						Authorization: `Bearer ${token}`
 					}

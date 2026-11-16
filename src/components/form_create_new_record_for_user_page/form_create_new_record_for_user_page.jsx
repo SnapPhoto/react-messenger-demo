@@ -383,7 +383,7 @@ export const Form_Create_New_Record_For_User_Page = ({
           const filtered_files = files.filter((f) => f !== file);
           set_files(filtered_files);
           const response = axios.post(
-            "http://localhost:8080/pre_loader_files_for_user_page",
+            "/pre_loader_files_for_user_page",
             formData,
             {
               headers: {
@@ -414,7 +414,7 @@ export const Form_Create_New_Record_For_User_Page = ({
         formData_to_post.append("files", JSON.stringify(loaded_files));
         formData_to_post.append("unique_token", unique_token);
         const response_send_post = await axios.post(
-          "http://localhost:8080/send_post_in_user_page",
+          "/send_post_in_user_page",
           formData_to_post,
           {
             headers: {
@@ -456,7 +456,7 @@ export const Form_Create_New_Record_For_User_Page = ({
           formData_to_post_for_main.append("user_page_id", user_page_id);
           formData_to_post_for_main.append("unique_token", unique_token);
           const response_send_post_in_main = await axios.post(
-            "http://localhost:8080/add_posts_for_main_page",
+            "/add_posts_for_main_page",
             formData_to_post_for_main,
             {
               headers: {
@@ -491,7 +491,7 @@ export const Form_Create_New_Record_For_User_Page = ({
         formData_to_post.append("text", text);
         formData_to_post.append("unique_token", unique_token);
         const response_send_post = await axios.post(
-          "http://localhost:8080/send_post_in_user_page",
+          "/send_post_in_user_page",
           formData_to_post,
           {
             headers: {
@@ -534,7 +534,7 @@ export const Form_Create_New_Record_For_User_Page = ({
         formData_to_post_for_main.append("text", JSON.stringify(text));
         formData_to_post_for_main.append("unique_token", unique_token);
         const response_send_post_in_main = await axios.post(
-          "http://localhost:8080/add_posts_for_main_page",
+          "/add_posts_for_main_page",
           formData_to_post_for_main,
           {
             headers: {
@@ -567,7 +567,7 @@ export const Form_Create_New_Record_For_User_Page = ({
           formData.append("file", file);
           //
           const response = axios.post(
-            "http://localhost:8080/pre_loader_files_for_user_page",
+            "/pre_loader_files_for_user_page",
             formData,
             {
               headers: {
@@ -599,7 +599,7 @@ export const Form_Create_New_Record_For_User_Page = ({
         formData_to_post.append("text", text);
         formData_to_post.append("unique_token", unique_token);
         const response_send_post = await axios.post(
-          "http://localhost:8080/send_post_in_user_page",
+          "/send_post_in_user_page",
           formData_to_post,
           {
             headers: {
@@ -643,7 +643,7 @@ export const Form_Create_New_Record_For_User_Page = ({
           formData_to_post_for_main.append("text", JSON.stringify(text));
           formData_to_post_for_main.append("unique_token", unique_token);
           const response_send_post_in_main = await axios.post(
-            "http://localhost:8080/add_posts_for_main_page",
+            "/add_posts_for_main_page",
             formData_to_post_for_main,
             {
               headers: {

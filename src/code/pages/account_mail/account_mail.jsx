@@ -76,7 +76,7 @@ export const Account_Mail = ({token, set_name_of_current_mail, set_curr_user, my
 				if( !default_mails.length > 0 ){
 					return;
 				}
-				const response = await axios.post('http://localhost:8080/get_data_active_mails', {
+				const response = await axios.post('/get_data_active_mails', {
 					active_mails: JSON.stringify(default_mails),
 				}, {
 					headers: {
@@ -223,7 +223,7 @@ export const Account_Mail = ({token, set_name_of_current_mail, set_curr_user, my
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_friends', {}, {
+			const response = await axios.post('/main/get_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -259,7 +259,7 @@ export const Account_Mail = ({token, set_name_of_current_mail, set_curr_user, my
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_peoples', {}, {
+			const response = await axios.post('/main/get_peoples', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -299,7 +299,7 @@ export const Account_Mail = ({token, set_name_of_current_mail, set_curr_user, my
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_active_messages', {}, {
+			const response = await axios.post('/main/get_active_messages', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				}

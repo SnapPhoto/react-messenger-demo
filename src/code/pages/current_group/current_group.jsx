@@ -179,7 +179,7 @@ export const Current_Group = ({
     try {
       console.log("/clear_waiting_in_group");
       const response = await axios.post(
-        "http://localhost:8080/clear_waiting_in_group",
+        "/clear_waiting_in_group",
         {
           group_id: this_group_id,
         },
@@ -213,7 +213,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_invite_id_for_user",
+        "/get_invite_id_for_user",
         {
           group_id: this_group_id,
         },
@@ -305,7 +305,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_user_data",
+        "/get_user_data",
         {},
         {
           headers: {
@@ -343,7 +343,7 @@ export const Current_Group = ({
     console.log("this_group_id = ", this_group_id);
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_my_last_page",
+        "/get_my_last_page",
         {
           group_id: this_group_id,
         },
@@ -375,7 +375,7 @@ export const Current_Group = ({
     try {
       console.log("enter_password = ", enter_password);
       const response = await axios.post(
-        "http://localhost:8080/set_my_last_page",
+        "/set_my_last_page",
         {
           group_id: this_group_id,
           group_password: enter_password,
@@ -536,7 +536,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_group_data",
+        "/get_group_data",
         {},
         {
           headers: {
@@ -644,7 +644,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/remove_group",
+        "/remove_group",
         {},
         {
           headers: {
@@ -703,7 +703,7 @@ export const Current_Group = ({
     if (enter_password.length > 0) {
       try {
         const response = await axios.post(
-          "http://localhost:8080/check_passwords",
+          "/check_passwords",
           {
             enter_password: enter_password,
             group_id: this_group_id,
@@ -738,7 +738,7 @@ export const Current_Group = ({
           return console.warn("Что-то с токеном не так");
         }
         const response = await axios.post(
-          "http://localhost:8080/save_titles",
+          "/save_titles",
           {
             titles: title_text.trim(" ") !== "" ? title_text : "/clear_this/",
             group_id: id,
@@ -763,7 +763,7 @@ export const Current_Group = ({
 
   // async function remove_all_posts(){
   // 	try{
-  // 		const response = await axios.post('http://localhost:8080/remove_all_posts', {
+  // 		const response = await axios.post('/remove_all_posts', {
   // 			group_id: id,
   // 		},{});
   // 	}
@@ -782,7 +782,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_posts",
+        "/get_posts",
         {
           group_id: id,
         },
@@ -854,7 +854,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/get_members",
+        "/get_members",
         {
           group_id: this_group_id,
         },
@@ -930,7 +930,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/join_group",
+        "/join_group",
         {
           group_id: this_group_id,
         },
@@ -979,7 +979,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/leave_group",
+        "/leave_group",
         {
           group_id: this_group_id,
         },
@@ -1039,7 +1039,7 @@ export const Current_Group = ({
     try {
       set_loading_file_group_avatar(true);
       const response = await axios.post(
-        "http://localhost:8080/set_group_avatar",
+        "/set_group_avatar",
         formdata,
         {
           headers: {
@@ -1083,7 +1083,7 @@ export const Current_Group = ({
     try {
       set_loading_file_group_header(true);
       const response = await axios.post(
-        "http://localhost:8080/set_header_group",
+        "/set_header_group",
         formdata,
         {
           headers: {
@@ -1187,7 +1187,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/set_bad_request_for_group",
+        "/set_bad_request_for_group",
         {
           group_id: this_group_id,
         },
@@ -1215,7 +1215,7 @@ export const Current_Group = ({
     }
     try {
       const response = await axios.post(
-        "http://localhost:8080/remove_bad_request_for_group",
+        "/remove_bad_request_for_group",
         {
           group_id: this_group_id,
         },
@@ -1258,7 +1258,7 @@ export const Current_Group = ({
       };
       console.log("content = ", content);
       const response = await axios.post(
-        "http://localhost:8080/add_favourites",
+        "/add_favourites",
         {
           content: content,
         },
@@ -1289,7 +1289,7 @@ export const Current_Group = ({
   // 		return;
   // 	}
   // 	try{
-  // 		const response = await axios.post('http://localhost:8080/clear_members', {
+  // 		const response = await axios.post('/clear_members', {
   // 			group_id: this_group_id,
   // 		}, {
   // 			headers: {

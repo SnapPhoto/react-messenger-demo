@@ -57,7 +57,7 @@ export const Groups = ({current_group_id, set_current_group_id, my_id, return_my
 			// 	if( my_groups_list ){
 			// 		try{
 			// 			async function check_my_groups(){
-			// 				const response = await axios.post('http://localhost:8080/check_my_groups', {
+			// 				const response = await axios.post('/check_my_groups', {
 			// 					my_groups_list: my_groups_list, 
 			// 				}, {
 			// 					headers: {
@@ -165,7 +165,7 @@ export const Groups = ({current_group_id, set_current_group_id, my_id, return_my
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_groups', {}, {
+			const response = await axios.post('/get_groups', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -263,7 +263,7 @@ export const Groups = ({current_group_id, set_current_group_id, my_id, return_my
 			console.log('Ошибка создания formdata')
 		}
 		try{
-			const response = await axios.post('http://localhost:8080/create_group', formdata, {
+			const response = await axios.post('/create_group', formdata, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -296,7 +296,7 @@ export const Groups = ({current_group_id, set_current_group_id, my_id, return_my
 			return console.error('Ошибка токена: Токен некорректный');
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_group',{},{
+			const response = await axios.post('/remove_group',{},{
 				headers: {
 					Authorization: `Bearer ${token}`,
 					id: id,
@@ -334,7 +334,7 @@ export const Groups = ({current_group_id, set_current_group_id, my_id, return_my
 	// 		return console.error('Ошибка токена: Токен некорректный');
 	// 	};
 	// 	try{
-	// 		const response = await axios.post('http://localhost:8080/remove_all_groups',{},{
+	// 		const response = await axios.post('/remove_all_groups',{},{
 	// 			headers: {
 	// 				Authorization: `Bearer ${token}`,
 	// 			}

@@ -114,7 +114,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			return console.error('Ошибка токена');
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_info_friend_or_not', {
+			const response = await axios.post('/get_info_friend_or_not', {
 				user_id: user_id,
 			},{
 				headers: {
@@ -163,7 +163,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_user_page_posts', {
+			const response = await axios.post('/get_user_page_posts', {
 				user_page_id: user_id,
 			}, {
 				headers: {
@@ -193,7 +193,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		};
 		console.log('my_id = ', my_id)
 		try{
-			const response = await axios.post('http://localhost:8080/get_user_page_data', {
+			const response = await axios.post('/get_user_page_data', {
 				user_id: user_id || 'ПУСТО',
 			}, {
 				headers: {
@@ -312,7 +312,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 				name: loaded?.file_name || filename,
 				full_name: filename,
 				file_name: loaded?.file_name || filename,
-				path: `http://localhost:8080/user-page-images/${encodeURIComponent(user_id)}/${encodeURIComponent(filename)}`,
+				path: `/user-page-images/${encodeURIComponent(user_id)}/${encodeURIComponent(filename)}`,
 			}];
 		});
 		set_posts_images(current_images);
@@ -330,7 +330,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_all_posts_in_user_page', {
+			const response = await axios.post('/remove_all_posts_in_user_page', {
 				user_page_id: user_id,
 			}, {
 				headers: {
@@ -368,7 +368,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		if( this_my_page ){
 			// поиск моих групп
 			try{
-				const response = await axios.post('http://localhost:8080/get_groups', {
+				const response = await axios.post('/get_groups', {
 					user_page_id: user_id,
 				}, {
 					headers: {
@@ -404,7 +404,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			// поиск групп другого пользователя
 			console.log('поиск групп другого пользователя')
 			try{
-				const response = await axios.post('http://localhost:8080/get_groups', {
+				const response = await axios.post('/get_groups', {
 					user_page_id: user_id,
 				}, {
 					headers: {
@@ -477,7 +477,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_friends', {
+			const response = await axios.post('/main/get_friends', {
 				this_my_page: this_my_page,
 				user_page_id: user_id,
 			}, {
@@ -558,7 +558,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		};
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/confirm_friend', {}, {
+				const response = await axios.post('/main/confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						confirm_id: id,
@@ -598,7 +598,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		};
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/cancel_confirm_friend', {}, {
+				const response = await axios.post('/main/cancel_confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						cancel_confirm_id: id,
@@ -638,7 +638,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		};
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/remove_friend', {}, {
+				const response = await axios.post('/main/remove_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						remove_id: id,
@@ -679,7 +679,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 		};
 		if( id ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/add_friend', {}, {
+				const response = await axios.post('/main/add_friend', {}, {
 					headers: {
 						people_id: id,
 						Authorization: `Bearer ${token}`
@@ -760,7 +760,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 				} || null,
 			}
 			console.log('content = ', content)
-			const response = await axios.post('http://localhost:8080/add_favourites', {
+			const response = await axios.post('/add_favourites', {
 				content: content,
 			}, {
 				headers: {
@@ -812,7 +812,7 @@ export const User_Page = ({raw_user, raw_curr_user, my_id, set_current_group_id,
 			loading = true;
 			//запрос на сервер...
 			if( loading ){
-				const response = await axios.get('http://localhost:8080/check_online', {
+				const response = await axios.get('/check_online', {
 					params: {
 						user_id: user_id,
 					},

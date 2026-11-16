@@ -238,7 +238,7 @@ export const Form_Create_New_Record = ({
             formData.append("file_index", index);
             formData.append("file", file);
             const response = axios.post(
-              "http://localhost:8080/pre_loader_files",
+              "/pre_loader_files",
               formData,
               {
                 headers: {
@@ -279,7 +279,7 @@ export const Form_Create_New_Record = ({
             formData.append("file_index", index);
             formData.append("file", file);
             const response = axios.post(
-              "http://localhost:8080/pre_loader_files",
+              "/pre_loader_files",
               formData,
               {
                 headers: {
@@ -313,7 +313,7 @@ export const Form_Create_New_Record = ({
           formData_to_post.append("files", JSON.stringify(loaded_files));
           formData_to_post.append("unique_token", unique_token || "");
           const response_send_post = await axios.post(
-            "http://localhost:8080/send_post_in_group",
+            "/send_post_in_group",
             formData_to_post,
             {
               headers: {
@@ -361,7 +361,7 @@ export const Form_Create_New_Record = ({
           formData_to_post_for_main.append("group_id", group_data?._id);
           formData_to_post_for_main.append("unique_token", unique_token || "");
           const response_send_post_in_main = await axios.post(
-            "http://localhost:8080/add_posts_for_main_page",
+            "/add_posts_for_main_page",
             formData_to_post_for_main,
             {
               headers: {
@@ -394,7 +394,7 @@ export const Form_Create_New_Record = ({
         formData_to_post.append("text", text);
         formData_to_post.append("unique_token", unique_token || "");
         const response_send_post = await axios.post(
-          "http://localhost:8080/send_post_in_group",
+          "/send_post_in_group",
           formData_to_post,
           {
             headers: {
@@ -437,7 +437,7 @@ export const Form_Create_New_Record = ({
         formData_to_post_for_main.append("group_id", group_data?._id);
         formData_to_post_for_main.append("unique_token", unique_token || "");
         const response_send_post_in_main = await axios.post(
-          "http://localhost:8080/add_posts_for_main_page",
+          "/add_posts_for_main_page",
           formData_to_post_for_main,
           {
             headers: {
@@ -474,7 +474,7 @@ export const Form_Create_New_Record = ({
           formData.append("file", file);
           //
           const response = axios.post(
-            "http://localhost:8080/pre_loader_files",
+            "/pre_loader_files",
             formData,
             {
               headers: {
@@ -506,7 +506,7 @@ export const Form_Create_New_Record = ({
         formData_to_post.append("text", text);
         formData_to_post.append("unique_token", unique_token || "");
         const response_send_post = await axios.post(
-          "http://localhost:8080/send_post_in_group",
+          "/send_post_in_group",
           formData_to_post,
           {
             headers: {
@@ -552,7 +552,7 @@ export const Form_Create_New_Record = ({
         formData_to_post_for_main.append("group_id", group_data?._id);
         formData_to_post_for_main.append("unique_token", unique_token || "");
         const response_send_post_in_main = await axios.post(
-          "http://localhost:8080/add_posts_for_main_page",
+          "/add_posts_for_main_page",
           formData_to_post_for_main,
           {
             headers: {
@@ -598,7 +598,7 @@ export const Form_Create_New_Record = ({
             formData.append("my_id", my_id);
             formData.append("other_id", other_id);
             const response = axios.post(
-              "http://localhost:8080/pre_loader_files_for_mails",
+              "/pre_loader_files_for_mails",
               formData,
               {
                 headers: {
@@ -625,7 +625,7 @@ export const Form_Create_New_Record = ({
           formData_to_post.append("type", "img");
           formData_to_post.append("files", JSON.stringify(loaded_files));
           const response_send_post = await axios.post(
-            "http://localhost:8080/main/send_message",
+            "/main/send_message",
             formData_to_post,
             {
               headers: {
@@ -672,7 +672,7 @@ export const Form_Create_New_Record = ({
             formData.append("other_id", JSON.stringify(other_id));
             formData.append("file", file);
             const response = axios.post(
-              "http://localhost:8080/pre_loader_files_for_mails",
+              "/pre_loader_files_for_mails",
               formData,
               {
                 headers: {
@@ -704,7 +704,7 @@ export const Form_Create_New_Record = ({
             JSON.stringify(curr_user) || null,
           );
           const response_send_post = await axios.post(
-            "http://localhost:8080/main/send_message",
+            "/main/send_message",
             formData_to_post,
             {
               headers: {
@@ -757,7 +757,7 @@ export const Form_Create_New_Record = ({
         formData_to_post.append("curr_user", JSON.stringify(curr_user));
         formData_to_post.append("text", text || "");
         const response_send_post = await axios.post(
-          "http://localhost:8080/main/send_message",
+          "/main/send_message",
           formData_to_post,
           {
             headers: {
@@ -808,7 +808,7 @@ export const Form_Create_New_Record = ({
           formData.append("other_id", JSON.stringify(other_id));
           formData.append("file", file);
           const response = axios.post(
-            "http://localhost:8080/pre_loader_files_for_mails",
+            "/pre_loader_files_for_mails",
             formData,
             {
               headers: {
@@ -835,7 +835,7 @@ export const Form_Create_New_Record = ({
         formData_to_post.append("text", text || "");
         formData_to_post.append("curr_user", JSON.stringify(curr_user) || null);
         const response_send_post = await axios.post(
-          "http://localhost:8080/main/send_message",
+          "/main/send_message",
           formData_to_post,
           {
             headers: {

@@ -144,7 +144,7 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
   //   try{
   //     const formData = new FormData();
   //     formData.append('audio', BLOB, 'recording-webm');
-  //     const response = await axios.post('http://localhost:8080/send_voice_message', formData, {});
+  //     const response = await axios.post('/send_voice_message', formData, {});
   //     if( response?.data?.message ){
   //       console.log('Сервер вернул ответ: ', response?.data?.message);
   //     };
@@ -168,7 +168,7 @@ export const Voice_Message = ({voice_recorded, set_voice_recorded, recording_voi
     };
     if( test_uploaded_audio ){
       console.log('test_uploaded_audio = ', test_uploaded_audio);
-      const voice_url = `http://localhost:8080/voice/${test_uploaded_audio}`;
+      const voice_url = `/voice/${test_uploaded_audio}`;
       if( voice_url ){
         console.log('test_voice_url = ', voice_url)
         set_test_voice_url(voice_url);

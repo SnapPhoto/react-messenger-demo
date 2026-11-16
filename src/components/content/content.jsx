@@ -236,7 +236,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		const token = localStorage.getItem('token');
 		if( !token ) return;
 		try{
-			const response = await axios.post('http://localhost:8080/remove_content', {
+			const response = await axios.post('/remove_content', {
 				content_id: id,
 				group_id: group_id,
 			}, {
@@ -255,7 +255,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						// console.log('rem_file = ',rem_file)
 						rem_file.forEach( async file=>{
 							try{
-								const response_remove = await axios.post('http://localhost:8080/total_delete_img', {
+								const response_remove = await axios.post('/total_delete_img', {
 									group_id: group_id,
 									content_id: id,
 									old_file: JSON.stringify(file?.data?.loaded_file),
@@ -271,7 +271,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 
 							//удаление из новостного канала
 							try{
-								const response = await axios.post('http://localhost:8080/remove_news', {
+								const response = await axios.post('/remove_news', {
 									unique_token: unique_token
 								}, {
 									headers: {
@@ -285,7 +285,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 
 							// удаление новостного поста (если есть)
 							try{
-								const response_remove_news = await axios.post('http://localhost:8080/remove_news', {
+								const response_remove_news = await axios.post('/remove_news', {
 									group_id: group_id,
 									content_id: id,
 								}, {
@@ -329,7 +329,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		const token = localStorage.getItem('token');
 		if( !token ) return;
 		try{
-			const response = await axios.post('http://localhost:8080/remove_content_user_page', {
+			const response = await axios.post('/remove_content_user_page', {
 				content_id: id,
 				user_page_id: user_id,
 			}, {
@@ -348,7 +348,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						// console.log('rem_file = ',rem_file)
 						rem_file.forEach( async file=>{
 							try{
-								const response_remove = await axios.post('http://localhost:8080/total_delete_img_for_user_page', {
+								const response_remove = await axios.post('/total_delete_img_for_user_page', {
 									user_page_id: user_id,
 									content_id: id,
 									old_file: JSON.stringify(file?.data?.loaded_file),
@@ -365,7 +365,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 
 							//удаление из новостного канала
 							try{
-								const response = await axios.post('http://localhost:8080/remove_news', {
+								const response = await axios.post('/remove_news', {
 									unique_token: unique_token
 								}, {
 									headers: {
@@ -398,7 +398,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		const token = localStorage.getItem('token');
 		if( !token ) return;
 		try{
-			const response = await axios.post('http://localhost:8080/remove_content_current_mail', {
+			const response = await axios.post('/remove_content_current_mail', {
 				content_id: id || c,
 				my_id: my_id || m,
 				other_id: other_id || o,
@@ -418,7 +418,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 						console.log('rem_file = ',rem_file)
 						rem_file.forEach( async file=>{
 							try{
-								const response_remove = await axios.post('http://localhost:8080/total_delete_img_for_user_page', {
+								const response_remove = await axios.post('/total_delete_img_for_user_page', {
 									user_page_id: user_id,
 									content_id: id,
 									old_file: JSON.stringify(file?.data?.loaded_file),
@@ -447,7 +447,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		const token = localStorage.getItem('token');
 		if( !token ) return;
 		try{
-			const response = await axios.post('http://localhost:8080/hide_content_for_group', {
+			const response = await axios.post('/hide_content_for_group', {
 				group_id: group_id,
 				content_id: id,
 			}, {
@@ -471,7 +471,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		const token = localStorage.getItem('token');
 		if( !token ) return;
 		try{
-			const response = await axios.post('http://localhost:8080/hide_content_for_user_page', {
+			const response = await axios.post('/hide_content_for_user_page', {
 				user_page_id: user_id,
 				content_id: id,
 			}, {
@@ -541,7 +541,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 				} || null,
 			}
 			console.log('content = ', content)
-			const response = await axios.post('http://localhost:8080/add_favourites', {
+			const response = await axios.post('/add_favourites', {
 				content: content,
 			}, {
 				headers: {
@@ -605,7 +605,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 		try{
 			// если статус не прочитано
 			if( mail?.status === 'uncheck' && this_my_mail === 'other' ){
-				const response = await axios.post('http://localhost:8080/mails/change_status',{
+				const response = await axios.post('/mails/change_status',{
 					mail: mail
 				},{
 					headers: {
@@ -1234,7 +1234,7 @@ export const Content_Block = ({type, role, img, data, id, text, visiable, posts_
 			}
 			{/* Если есть голосовое */}
 			{voice &&
-				<audio controls src={`http://localhost:8080/voice/${voice}`}></audio>
+				<audio controls src={`/voice/${voice}`}></audio>
 			}
 		</div>
 	);

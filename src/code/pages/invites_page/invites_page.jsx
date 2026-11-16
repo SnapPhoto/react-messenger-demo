@@ -79,7 +79,7 @@ export const Invites_Page = ({close, get_avatars}) => {
 		try{
 			set_invites([]);
 			set_default_invites([]);
-			const response = await axios.post('http://localhost:8080/get_invites_for_me', {
+			const response = await axios.post('/get_invites_for_me', {
 
 			}, {
 				headers: {
@@ -154,7 +154,7 @@ export const Invites_Page = ({close, get_avatars}) => {
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_invite', {
+			const response = await axios.post('/remove_invite', {
 				invite: JSON.stringify(invite),
 			}, {
 				headers: {
@@ -178,7 +178,7 @@ export const Invites_Page = ({close, get_avatars}) => {
 		};
 		try{
 			console.log('----------------------- invite = ', invite);
-			const response = await axios.post('http://localhost:8080/add_invite_id_for_user', {
+			const response = await axios.post('/add_invite_id_for_user', {
 				id_from: invite?.id_from,
 				id_for: invite?.id_for,
 				group_id: invite?.invite_data?.id,

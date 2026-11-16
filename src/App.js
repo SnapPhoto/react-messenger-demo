@@ -126,7 +126,7 @@ function App(){
     if( !token ){
       return;
     };
-    const response = await axios.post('http://localhost:8080/change_status_online', {
+    const response = await axios.post('/change_status_online', {
       status: status,
     }, {
       headers: {
@@ -149,7 +149,7 @@ function App(){
   async function verify_token(){
     try{
       if( token ){
-        const response = await axios.post('http://localhost:8080/account/verify', {}, {
+        const response = await axios.post('/account/verify', {}, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -225,7 +225,7 @@ function App(){
   async function get_my_id(type){
     if( !token ){ return };
     try{
-      const response = await axios.post('http://localhost:8080/get_user_data', {
+      const response = await axios.post('/get_user_data', {
 
       }, {
         headers: {
@@ -282,7 +282,7 @@ function App(){
     try{
       const formData = new FormData();
       formData.append('file', file);
-      const response = await axios.post('http://localhost:8080/load_avatar',  formData, {
+      const response = await axios.post('/load_avatar',  formData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -326,7 +326,7 @@ function App(){
       return;
     };
     try{
-      const response = await axios.post('http://localhost:8080/get_user_data', {}, {
+      const response = await axios.post('/get_user_data', {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         }

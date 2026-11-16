@@ -28,7 +28,7 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 	async function get_my_id(){
 		if( !token ){ return };
 		try{
-			const response = await axios.post('http://localhost:8080/get_user_data', {
+			const response = await axios.post('/get_user_data', {
 
 			}, {
 				headers: {
@@ -46,7 +46,7 @@ export const Notification_Bar = ({type, ws_message_type, my_id, my_name}) => {
 
 	async function get_notifications(){
 		if( !token ){ return }
-		const response = await axios.get('http://localhost:8080/get_notifications', {
+		const response = await axios.get('/get_notifications', {
 			params: {
 				type: type,
 				my_id: my_id || await get_my_id() || 'пусто',

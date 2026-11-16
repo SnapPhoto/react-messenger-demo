@@ -293,7 +293,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			console.log('curr_user = ', curr_user);
 			console.log('curr_user.to = ', curr_user.to);
 			console.log('curr_user.from = ', curr_user.from);
-			const response = await axios.post('http://localhost:8080/check_my_id', {
+			const response = await axios.post('/check_my_id', {
 				curr_user: JSON.stringify(curr_user),
 			}, {
 				headers: {
@@ -364,7 +364,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_user_data', {}, {
+			const response = await axios.post('/get_user_data', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 					other_id: curr_user.from && curr_user.to ? my_data.id !== curr_user.from ? curr_user.from : curr_user.to : curr_user
@@ -649,7 +649,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 							formData.append('file_index', index);
 							formData.append('other_id', String(curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user));
 							formData.append('file', file);
-							const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+							const response = axios.post('/pre_loader_files_for_mails', formData, {
 								headers: {
 									Authorization: `Bearer ${token}`
 								}
@@ -672,7 +672,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 						const formData_to_post = new FormData(); 
 						formData_to_post.append("curr_user", JSON.stringify(curr_user));
 						formData_to_post.append("files", JSON.stringify(loaded_files));
-						const response_send_post = await axios.post('http://localhost:8080/main/send_message', formData_to_post, {
+						const response_send_post = await axios.post('/main/send_message', formData_to_post, {
 							headers: {
 								Authorization: `Bearer ${token}`,
 							}
@@ -710,7 +710,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 							formData.append('file_index', index);
 							formData.append('other_id', String(curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user));
 							formData.append('file', file);
-							const response = await axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+							const response = await axios.post('/pre_loader_files_for_mails', formData, {
 								headers: {
 									Authorization: `Bearer ${token}`
 								}
@@ -733,7 +733,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 						formData_to_post.append("type", 'file');
 						formData_to_post.append("files", JSON.stringify(loaded_files) || null);
 						formData_to_post.append("curr_user", JSON.stringify(curr_user) || null);
-						const response_send_post = await axios.post('http://localhost:8080/main/send_message', formData_to_post, {
+						const response_send_post = await axios.post('/main/send_message', formData_to_post, {
 							headers: {
 								Authorization: `Bearer ${token}`,
 							}
@@ -780,7 +780,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					formData_to_post.append("type", 'text');
 					formData_to_post.append("curr_user", JSON.stringify(curr_user));
 					formData_to_post.append("text", mail_text || '');
-					const response_send_post = await axios.post('http://localhost:8080/main/send_message', formData_to_post, {
+					const response_send_post = await axios.post('/main/send_message', formData_to_post, {
 						headers: {
 							Authorization: `Bearer ${token}`,
 						}
@@ -826,7 +826,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 						formData.append('file_index', index);
 						formData.append('other_id', String(other_id || (curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user)));
 						formData.append('file', file);
-						const response = await axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+						const response = await axios.post('/pre_loader_files_for_mails', formData, {
 							headers: {
 								Authorization: `Bearer ${token}`
 							}
@@ -851,7 +851,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					formData_to_post.append("files", JSON.stringify(loaded_files) || null);
 					formData_to_post.append("text", mail_text || '')
 					formData_to_post.append("curr_user", JSON.stringify(curr_user) || null);
-					const response_send_post = await axios.post('http://localhost:8080/main/send_message', formData_to_post, {
+					const response_send_post = await axios.post('/main/send_message', formData_to_post, {
 						headers: {
 							Authorization: `Bearer ${token}`,
 						}
@@ -899,7 +899,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				  formData.append('type', 'voice');
 				  formData.append('curr_user', JSON.stringify(curr_user));
 				  formData.append('voice', voice_recorded, 'voice-webm');
-				  const response = await axios.post('http://localhost:8080/main/send_message', formData, {
+				  const response = await axios.post('/main/send_message', formData, {
 				  	headers: {
 				  		Authorization: `Bearer ${token}`
 				  	}
@@ -966,7 +966,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					formData.append('file_index', index);
 					formData.append('other_id', String(other_id || (curr_user?.to === my_data?.id ? curr_user?.from : curr_user?.to || curr_user)));
 					formData.append('file', file);
-					const response = axios.post('http://localhost:8080/pre_loader_files_for_mails', formData, {
+					const response = axios.post('/pre_loader_files_for_mails', formData, {
 						headers: {
 							Authorization: `Bearer ${token}`
 						}
@@ -997,7 +997,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 					console.log('curr_user = ', curr_user)
 				}
 				// Отправка запроса
-		        const response = await axios.post('http://localhost:8080/main/send_message', formData,{
+		        const response = await axios.post('/main/send_message', formData,{
 		            headers: {
 		                Authorization: `Bearer ${token}`,
 		            }
@@ -1056,7 +1056,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			return;
 		}
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_messages', {
+			const response = await axios.post('/main/get_messages', {
 				user_select_id: curr_user,
 			}, {
 				headers: {
@@ -1449,7 +1449,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 	// 				if( token ){
 	// 					try{
 	// 						console.log('отправка на изменение: mail = ', mail)
-	// 						const response = await axios.post('http://localhost:8080/mails/change_status', {
+	// 						const response = await axios.post('/mails/change_status', {
 	// 							mail: mail,
 	// 						}, {
 	// 							headers: {
@@ -1477,7 +1477,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 		if( checked_items.length > 0 && token ){
 			async function remove(){
 				try{
-					const response = await axios.post('http://localhost:8080/remove_message', {
+					const response = await axios.post('/remove_message', {
 						checked_items: JSON.stringify(checked_items),
 					}, {
 						headers: {
@@ -1542,7 +1542,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 			const token = localStorage.getItem('token');
 			if( !token ){ return };
 			try{
-				const response = await axios.post('http://localhost:8080/get_user_data', {}, {
+				const response = await axios.post('/get_user_data', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						other_id: curr_user,
@@ -1614,7 +1614,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 
 	// useEffect(()=>{
 	// 	async function remove_all_messages_for_current_mails(){
-	// 		const response = await axios.post('http://localhost:8080/remove_all_messages_for_current_mails', {}, {})
+	// 		const response = await axios.post('/remove_all_messages_for_current_mails', {}, {})
 	// 	}
 	// 	remove_all_messages_for_current_mails()
 	// },[])
@@ -1639,7 +1639,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				} || null,
 			}
 			console.log('content = ', content)
-			const response = await axios.post('http://localhost:8080/add_favourites', {
+			const response = await axios.post('/add_favourites', {
 				content: content,
 			}, {
 				headers: {
@@ -1677,7 +1677,7 @@ export const Account_Current_Mails = ({raw_name_of_current_mail, raw_curr_user, 
 				} || null,
 			}
 			console.log('content = ', content)
-			const response = await axios.post('http://localhost:8080/add_favourites', {
+			const response = await axios.post('/add_favourites', {
 				content: content,
 			}, {
 				headers: {

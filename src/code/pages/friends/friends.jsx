@@ -113,7 +113,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_outgoing_friends', {}, {
+			const response = await axios.post('/main/get_outgoing_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -141,7 +141,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_await_confirm_friends', {}, {
+			const response = await axios.post('/main/get_await_confirm_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				}
@@ -169,7 +169,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 		};
 		set_is_loading_friends(true);
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_friends', {}, {
+			const response = await axios.post('/main/get_friends', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
@@ -200,7 +200,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 	async function confirm_friend(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/confirm_friend', {}, {
+				const response = await axios.post('/main/confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						confirm_id: id,
@@ -238,7 +238,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 	async function cancel_confirm(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/cancel_confirm_friend', {}, {
+				const response = await axios.post('/main/cancel_confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						cancel_confirm_id: id,
@@ -273,7 +273,7 @@ export const Friends = ({token, set_s_user, set_curr_user, set_name_of_current_m
 	async function remove_friend(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/remove_friend', {}, {
+				const response = await axios.post('/main/remove_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						remove_id: id,

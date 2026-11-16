@@ -36,7 +36,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	// 		return console.log('Токен не найден!');
 	// 	};
 	// 	try{
-	// 		const response = await axios.post('http://localhost:8080/set_default_profil_avatar_for_all_users', {}, {
+	// 		const response = await axios.post('/set_default_profil_avatar_for_all_users', {}, {
 	// 			headers: {
 	// 				Authorization: `Bearer ${token}`
 	// 			}
@@ -55,7 +55,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 
 	// async function remove_all_users(){
 	// 	try{
-	// 		await axios.post('http://localhost:8080/remove_all_users', {}, {});
+	// 		await axios.post('/remove_all_users', {}, {});
 	// 	}
 	// 	catch(err){
 	// 		return console.log('Ошибка: ', err);
@@ -67,7 +67,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 
 	// async function remove_all_messages(){
 	// 	try{
-	// 		const response = await axios.post('http://localhost:8080/remove_all_messages', {}, {})
+	// 		const response = await axios.post('/remove_all_messages', {}, {})
 	// 	}
 	// 	catch(err){
 	// 		return console.error('Ошибка: ', err);
@@ -80,7 +80,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	async function add_friend(id){
 		if( id ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/add_friend', {}, {
+				const response = await axios.post('/main/add_friend', {}, {
 					headers: {
 						people_id: id,
 						Authorization: `Bearer ${token}`
@@ -113,7 +113,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	async function cancel_add_friend(id){
 		if( id ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/cancel_add_friend', {}, {
+				const response = await axios.post('/main/cancel_add_friend', {}, {
 					headers: {
 						people_id: id,
 						Authorization: `Bearer ${token}`
@@ -145,7 +145,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	async function cancel_confirm(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/cancel_confirm_friend', {}, {
+				const response = await axios.post('/main/cancel_confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						cancel_confirm_id: id,
@@ -174,7 +174,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	async function confirm_friend(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/confirm_friend', {}, {
+				const response = await axios.post('/main/confirm_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						confirm_id: id,
@@ -205,7 +205,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 	async function remove_friend(id){
 		if( token ){
 			try{
-				const response = await axios.post('http://localhost:8080/main/remove_friend', {}, {
+				const response = await axios.post('/main/remove_friend', {}, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						remove_id: id,
@@ -242,7 +242,7 @@ export const Peoples = ({token, set_token, set_s_user, set_curr_user, set_name_o
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/main/get_peoples', {}, {
+			const response = await axios.post('/main/get_peoples', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}

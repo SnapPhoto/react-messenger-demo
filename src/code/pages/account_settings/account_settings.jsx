@@ -13,7 +13,7 @@ export const account_settings = ({my_id, jump_to_login_page}) => {
 			if( !token ){
 				return console.error('Ошибка токена');
 			};
-			const response = await axios.post('http://localhost:8080/account/delete', {
+			const response = await axios.post('/account/delete', {
 				my_id: my_id,
 			}, {
 				headers: {

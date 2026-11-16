@@ -20,7 +20,7 @@ export const Panel_With_Add_Password = ({close, group_id, group_data, this_my_gr
 			return;
 		}
 		try{
-			const response = await axios.post('http://localhost:8080/change_password_for_group', {
+			const response = await axios.post('/change_password_for_group', {
 				group_id: group_id,
 				old_password: old_password_text,
 				new_password: new_password_text,
@@ -48,7 +48,7 @@ export const Panel_With_Add_Password = ({close, group_id, group_data, this_my_gr
 			return;
 		}
 		try{
-			const response = await axios.post('http://localhost:8080/remove_password_for_group', {
+			const response = await axios.post('/remove_password_for_group', {
 				group_id: group_id,
 				this_my_group: this_my_group,
 			}, {

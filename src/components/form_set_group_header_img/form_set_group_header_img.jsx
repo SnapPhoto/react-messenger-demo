@@ -90,7 +90,7 @@ export const Form = ({set_file, pick_file, set_visiable, set_avatar, old_header,
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/remove_group_header', {
+			const response = await axios.post('/remove_group_header', {
 				group_id: group_id,
 			}, {
 				headers: {

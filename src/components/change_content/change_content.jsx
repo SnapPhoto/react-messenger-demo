@@ -151,7 +151,7 @@ export const Form_Change_Record = ({
         });
         const preview =
           found?.asset ||
-          `http://localhost:8080/images/max/${encodeURIComponent(filename_candidates[0])}`;
+          `/images/max/${encodeURIComponent(filename_candidates[0])}`;
         next_files.push({ old_file: file_entry, type: "empty" });
         next_previews.push(preview);
       }
@@ -361,7 +361,7 @@ export const Form_Change_Record = ({
           console.log("rem_file = ", rem_file);
           try {
             const response_remove = await axios.post(
-              "http://localhost:8080/total_delete_img",
+              "/total_delete_img",
               {
                 group_id: id,
                 content_id: content_id,
@@ -396,7 +396,7 @@ export const Form_Change_Record = ({
               ); // передача либо объекта( кодировка + ) либо файла ( без кодировки )
               formData.append("file_index", index);
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files",
+                "/pre_loader_files",
                 formData,
                 {
                   headers: {
@@ -434,7 +434,7 @@ export const Form_Change_Record = ({
             );
             console.log("оправка files: ", filtered_loaded_files);
             const response_change_content = await axios.post(
-              "http://localhost:8080/change_content",
+              "/change_content",
               formDataChange,
               {
                 headers: {
@@ -488,7 +488,7 @@ export const Form_Change_Record = ({
           formData_to_post.append("content_id", content_id);
           formData_to_post.append("type_content", "text");
           const response_send_post = await axios.post(
-            "http://localhost:8080/change_content",
+            "/change_content",
             formData_to_post,
             {
               headers: {
@@ -545,7 +545,7 @@ export const Form_Change_Record = ({
               formData.append("file_index", index);
               formData.append("type_content", "img_and_text");
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files",
+                "/pre_loader_files",
                 formData,
                 {
                   headers: {
@@ -584,7 +584,7 @@ export const Form_Change_Record = ({
             );
             console.log("оправка files: ", filtered_loaded_files);
             const response_change_content = await axios.post(
-              "http://localhost:8080/change_content",
+              "/change_content",
               formDataChange,
               {
                 headers: {
@@ -641,7 +641,7 @@ export const Form_Change_Record = ({
           console.log("rem_file = ", rem_file);
           try {
             const response_remove = await axios.post(
-              "http://localhost:8080/total_delete_img_for_user_page",
+              "/total_delete_img_for_user_page",
               {
                 user_page_id: user_id,
                 content_id: content_id,
@@ -677,7 +677,7 @@ export const Form_Change_Record = ({
               ); // передача либо объекта( кодировка + ) либо файла ( без кодировки )
               formData.append("file_index", index);
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files_for_user_page",
+                "/pre_loader_files_for_user_page",
                 formData,
                 {
                   headers: {
@@ -715,7 +715,7 @@ export const Form_Change_Record = ({
             );
             console.log("оправка files: ", filtered_loaded_files);
             const response_change_content = await axios.post(
-              "http://localhost:8080/change_content_user_page",
+              "/change_content_user_page",
               formDataChange,
               {
                 headers: {
@@ -749,7 +749,7 @@ export const Form_Change_Record = ({
           formData_to_post.append("content_id", content_id);
           formData_to_post.append("type_content", "text");
           const response_send_post = await axios.post(
-            "http://localhost:8080/change_content_user_page",
+            "/change_content_user_page",
             formData_to_post,
             {
               headers: {
@@ -788,7 +788,7 @@ export const Form_Change_Record = ({
               formData.append("file_index", index);
               formData.append("type_content", "img_and_text");
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files_for_user_page",
+                "/pre_loader_files_for_user_page",
                 formData,
                 {
                   headers: {
@@ -827,7 +827,7 @@ export const Form_Change_Record = ({
             );
             console.log("оправка files: ", filtered_loaded_files);
             const response_change_content = await axios.post(
-              "http://localhost:8080/change_content_user_page",
+              "/change_content_user_page",
               formDataChange,
               {
                 headers: {
@@ -867,7 +867,7 @@ export const Form_Change_Record = ({
           try {
             console.log("+++++ УДАЛЕНИЕ ИЗОБРАЖЕНИЙ...");
             const response_remove = await axios.post(
-              "http://localhost:8080/total_delete_img_for_current_mails",
+              "/total_delete_img_for_current_mails",
               {
                 my_id: my_id,
                 other_id: other_id,
@@ -905,7 +905,7 @@ export const Form_Change_Record = ({
               ); // передача либо объекта( кодировка + ) либо файла ( без кодировки )
               formData.append("file_index", index);
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files_for_current_mails",
+                "/pre_loader_files_for_current_mails",
                 formData,
                 {
                   headers: {
@@ -943,7 +943,7 @@ export const Form_Change_Record = ({
             );
             console.log("оправка files: ", filtered_loaded_files);
             const response_change_content = await axios.post(
-              "http://localhost:8080/change_content_for_current_mails",
+              "/change_content_for_current_mails",
               formDataChange,
               {
                 headers: {
@@ -995,7 +995,7 @@ export const Form_Change_Record = ({
           formData_to_post.append("content_id", content_id_for_current_mails);
           formData_to_post.append("type_content", "text");
           const response_send_post = await axios.post(
-            "http://localhost:8080/change_content_for_current_mails",
+            "/change_content_for_current_mails",
             formData_to_post,
             {
               headers: {
@@ -1053,7 +1053,7 @@ export const Form_Change_Record = ({
               ); // передача либо объекта( кодировка + ) либо файла ( без кодировки )
               formData.append("file_index", index);
               const response = axios.post(
-                "http://localhost:8080/pre_loader_files_for_current_mails",
+                "/pre_loader_files_for_current_mails",
                 formData,
                 {
                   headers: {
@@ -1106,7 +1106,7 @@ export const Form_Change_Record = ({
             try {
               console.log("1");
               const response_change_content = await axios.post(
-                "http://localhost:8080/change_content_for_current_mails",
+                "/change_content_for_current_mails",
                 formDataChange,
                 {
                   headers: {

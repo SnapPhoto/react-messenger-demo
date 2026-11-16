@@ -48,7 +48,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 			if( !name && !pass && !dbl_pass && !email ){
 				new_errors.push({error: 'Заполните форму регистрации'});
 			}
-			const response = await axios.post('http://localhost:8080/account/register', {}, {
+			const response = await axios.post('/account/register', {}, {
 				headers: {
 					name,
 					email,
@@ -90,7 +90,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 	async function send_veryfy_code(){
 		if( name && email && pass && dbl_pass ){
 			try{
-				const response = await axios.post('http://localhost:8080/send/verify_code', {
+				const response = await axios.post('/send/verify_code', {
 					send_to: email,
 				},{});
 				if( response?.data?.message ){
@@ -111,7 +111,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 		if( code_check_in_progress.current || registration_in_progress.current ) return;
 		code_check_in_progress.current = true;
 		try{
-			const response = await axios.post('http://localhost:8080/get_verify_code', {
+			const response = await axios.post('/get_verify_code', {
 				email: email,
 				entered_code: entered_verify_code,
 			}, {});
@@ -137,7 +137,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 
 	async function clear_codes(){
 		try{
-			const response = await axios.post('http://localhost:8080/remove_codes', {}, {});
+			const response = await axios.post('/remove_codes', {}, {});
 			if( response?.data?.message ){
 				console.log(response?.data?.message);
 			};
@@ -159,7 +159,7 @@ export const Register = ({set_auto_login, set_user_reg_data, set_my_id}) => {
 	},[entered_verify_code])
 
 // 	async function delete_all_users(){
-// 		await axios.post('http://localhost:8080/remove_all_users');
+// 		await axios.post('/remove_all_users');
 // 	}
 // 
 // 	useEffect(()=>{

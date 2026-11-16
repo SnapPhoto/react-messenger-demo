@@ -19,7 +19,7 @@ export const Panel_With_Add_Password = ({close, group_id, this_my_group, refresh
 			return;
 		}
 		try{
-			const response = await axios.post('http://localhost:8080/set_password_for_group', {
+			const response = await axios.post('/set_password_for_group', {
 				group_id: group_id,
 				this_my_group: this_my_group,
 				password: password_text,

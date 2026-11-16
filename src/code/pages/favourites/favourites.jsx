@@ -36,7 +36,7 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/get_favourites', {}, {
+			const response = await axios.post('/get_favourites', {}, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				}
@@ -116,7 +116,7 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 
 	async function clear_favourites(){
 		try{
-			const response = await axios.post('http://localhost:8080/clear_favourites', {},{})
+			const response = await axios.post('/clear_favourites', {},{})
 		}
 		catch(err){
 
@@ -129,7 +129,7 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 			return;
 		};
 		try{
-			const response = await axios.post('http://localhost:8080/clear_favourite', {
+			const response = await axios.post('/clear_favourite', {
 				favourite: favourite,
 			}, {
 				headers: {
@@ -306,7 +306,7 @@ export const Favourites = ({visiable_panel_with_invites, set_visiable_panel_with
 																</div>
 																<div className={cl.mail_voice}>
 																	{favourite?.content_data?.voice &&
-																		<audio controls src={`http://localhost:8080/voice/${favourite?.content_data?.voice}`}></audio>
+																		<audio controls src={`/voice/${favourite?.content_data?.voice}`}></audio>
 																	}
 																</div>
 																<div className={cl.mail_text}>

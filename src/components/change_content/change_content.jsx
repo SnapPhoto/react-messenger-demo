@@ -54,7 +54,7 @@ export const Form_Change_Record = ({
       let asset_entries = [];
       if (user_id && !for_current_mails) {
         const context = require.context(
-          "../../images/user_page_images/",
+          "../../images/user_page_images",
           true,
           /\.(jpg|jpeg|png|webp)$/i,
         );
@@ -64,7 +64,7 @@ export const Form_Change_Record = ({
           .map((key) => ({ key, asset: context(key) }));
       } else if (!user_id && !for_current_mails) {
         const context = require.context(
-          "../../images/groups_images/",
+          "../../images/groups_images",
           true,
           /\.(jpg|jpeg|png|webp)$/i,
         );
@@ -74,7 +74,7 @@ export const Form_Change_Record = ({
           .map((key) => ({ key, asset: context(key) }));
       } else if (for_current_mails) {
         const context = require.context(
-          "../../images/max/",
+          "../../images/max",
           false,
           /\.(jpg|jpeg|png|webp)$/i,
         );

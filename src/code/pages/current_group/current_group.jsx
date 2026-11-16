@@ -753,7 +753,7 @@ export const Current_Group = ({return_my_role, visiable_panel_with_invites, set_
 		};
 		try{
 			if( require_images ){
-				const context = require.context('../../../../src/images/groups_images/', true, /\.(jpg|jpeg|png|webp)$/i);
+				const context = require.context('../../../../src/images/groups_images', true, /\.(jpg|jpeg|png|webp)$/i);
 				const current_folder = context.keys().filter(folder => folder.includes(`/${id}/`));
 				const current_images = current_folder.map(key => {
 					const filename = key.split('/').pop();

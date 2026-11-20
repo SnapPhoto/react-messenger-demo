@@ -117,24 +117,28 @@ export const Account_Mail = ({
   }, [default_mails]);
 
   useEffect(() => {
-    mails_data.map((m) => {
-      profil_avatars.map((p) => {
-        if (m.user_profil_avatar !== null && p.name === m.user_profil_avatar) {
-          set_active_users_data((active_users_data) => [
-            ...active_users_data,
-            {
-              user_id: m.user_id,
-              avatar_name: p.name,
-              avatar_path: p.path,
-              mail_id:
-                my_id_ref.current === m.from
-                  ? mails.find((item) => item.to === my_id_ref.current)?._id
-                  : mails.find((item) => item.from === my_id_ref.current)?._id,
-            },
-          ]);
-        }
+    if (mails_data !== null && mails_data.length > 0) {
+      mails_data.map((m) => {
+        console.log("m = ", m);
+        profil_avatars.map((p) => {
+          if (m !== null && p.name === m.user_profil_avatar) {
+            set_active_users_data((active_users_data) => [
+              ...active_users_data,
+              {
+                user_id: m.user_id,
+                avatar_name: p.name,
+                avatar_path: p.path,
+                mail_id:
+                  my_id_ref.current === m.from
+                    ? mails.find((item) => item.to === my_id_ref.current)?._id
+                    : mails.find((item) => item.from === my_id_ref.current)
+                        ?._id,
+              },
+            ]);
+          }
+        });
       });
-    });
+    }
   }, [mails_data, profil_avatars]);
 
   useEffect(() => {

@@ -100,7 +100,7 @@ export const Account_Mail = ({token, set_name_of_current_mail, set_curr_user, my
 	useEffect(()=>{
 		mails_data.map((m)=>{
 			profil_avatars.map((p)=>{
-				if( p.name === m.user_profil_avatar ){
+				if( (p.name !== null && m.user_profil_avatar !== null) && p.name === m.user_profil_avatar ){
 					set_active_users_data(active_users_data => [...active_users_data, {
 						user_id: m.user_id,
 						avatar_name: p.name,

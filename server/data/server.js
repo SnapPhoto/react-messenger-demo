@@ -37,10 +37,6 @@ const connect_db = require("./connect_db");
 const nodemailer = require("nodemailer"); //нужно кстати его настроить :D фигли стоит без дела
 const Secure_Code_Schema = require("../schemas/secure_code.js");
 
-// пути хранения файлов для сервера fly.io и для локалки
-const FILES_ROOT = process.env.FILES_DIR || path.resolve(__dirname, "..", "..");
-const writableDir = (...parts) => path.join(FILES_ROOT, ...parts);
-
 // для загрузки файлов
 const fs = require("fs/promises");
 if (!fs) {
@@ -108,7 +104,7 @@ async function register_fastify_static_for_voice() {
   try {
     //Проверка на существование папки для голосовых
     try {
-      const folder_path = writableDir("src", "audio_files"); // ДЛЯ ОБЫЧНОЙ РАБОТЫ path.join(__dirname, '../../src/audio_files')
+      const folder_path = path.join(__dirname, "./src/audio_files"); // ДЛЯ ОБЫЧНОЙ РАБОТЫ path.join(__dirname, '../../src/audio_files')
       const folder_exist = await fs
         .access(folder_path)
         .then(() => true)
@@ -126,19 +122,19 @@ async function register_fastify_static_for_voice() {
     }
     console.log("Регистрация @fastify/static...");
     await fastify.register(fastify_static, {
-      root: writableDir("src", "audio_files"), // путь к папке для голосовых
+      root: path.join(__dirname, "../../src/audio_files"), // путь к папке для голосовых
       prefix: "/voice/", // частичка пути в http:// (пример: http://localhost:8080/ voice /будущее название файла)
       maxAge: "30m", // время хранения файла браузером, чтобы не запрашивать повторно с сервера
       decorateReply: true,
     });
     await fastify.register(fastify_static, {
-      root: writableDir("src", "images", "max"),
+      root: path.resolve(__dirname, "../../src/images/max"),
       prefix: "/images/max/",
       decorateReply: false,
       maxAge: "0",
     });
     await fastify.register(fastify_static, {
-      root: writableDir("src", "images", "user_page_images"),
+      root: path.resolve(__dirname, "../../src/images/user_page_images"),
       prefix: "/user-page-images/",
       decorateReply: false,
       maxAge: "0",
@@ -223,7 +219,7 @@ fastify.post("/write_image", async (request, reply) => {
       console.log("Ошибка PATHH");
       return reply.send({ error: "Ошибка PATHH" });
     }
-    const folder = writableDir("src", "images", "max");
+    const folder = path.join(__dirname, "../../images/max");
     const folder_exist = await fs
       .access(folder)
       .then(() => {
@@ -314,7 +310,7 @@ fastify.post("/account/register", async (request, reply) => {
       __dirname,
       "../../src/images/default/default_avatar/empty.jpg",
     );
-    const profiles_path = writableDir("src", "images", "profils");
+    const profiles_path = path.resolve(__dirname, "../../src/images/profils");
     await fs.mkdir(profiles_path, { recursive: true });
     const existing_avatar_path = user.profil_avatar
       ? path.join(profiles_path, path.basename(user.profil_avatar))
@@ -1334,7 +1330,7 @@ fastify.post("/pre_loader_files_for_mails", async (request, reply) => {
   try {
     const dir = `${my_id}_${other_id}` || `${other_id}_${my_id}`;
     // const folder = path.join(__dirname, `../../src/images/max/${my_id}_${other_id}`);
-    const folder = writableDir("src", "images", "max");
+    const folder = path.join(__dirname, "../../src/images/max");
     await fs.mkdir(folder, { recursive: true });
     const file_ext = path.extname(file.filename) || ".jpg";
     const number = Math.floor(Math.random() * 1000000);
@@ -1468,7 +1464,7 @@ fastify.post("/main/send_message", async (request, reply) => {
   const preloaded_voice_name = async () => {
     if (voice) {
       //установка пути к папке с аудио
-      const audio_folder = writableDir("src", "audio_files");
+      const audio_folder = path.resolve(__dirname, "../../src/audio_files");
       await fs.mkdir(audio_folder, { recursive: true });
       const voice_name = path
         .basename(voice.filename || "recording.webm")

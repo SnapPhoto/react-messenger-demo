@@ -104,7 +104,7 @@ async function register_fastify_static_for_voice() {
   try {
     //Проверка на существование папки для голосовых
     try {
-      const folder_path = path.join(__dirname, "./src/audio_files"); // ДЛЯ ОБЫЧНОЙ РАБОТЫ path.join(__dirname, '../../src/audio_files')
+      const folder_path = path.join(__dirname, "../../src/audio_files"); // ДЛЯ ОБЫЧНОЙ РАБОТЫ path.join(__dirname, '../../src/audio_files')
       const folder_exist = await fs
         .access(folder_path)
         .then(() => true)

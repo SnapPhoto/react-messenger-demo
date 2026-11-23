@@ -219,7 +219,7 @@ fastify.post("/write_image", async (request, reply) => {
       console.log("Ошибка PATHH");
       return reply.send({ error: "Ошибка PATHH" });
     }
-    const folder = path.join(__dirname, "../../src/images/max"); // раньше было ../../images/max
+    const folder = path.join(__dirname, "../src/images/max"); // раньше было ../../images/max
     const folder_exist = await fs
       .access(folder)
       .then(() => {
